@@ -11,20 +11,29 @@ ROOTFLAG = `${ROOTSYS}/bin/root-config --cflags --libs`
 EXTRALIBS  :=  -L$(ROOTSYS)/lib -L$(ROOFIT_LIBDIR)/ -lHtml -lMathCore -lGenVector -lMinuit -lEG -lRooFitCore -lRooFit
 
 
-higgsAnalysis: higgsAna.o higgsAnalysis.cpp
-	$(CC) -Wall -o higgsAnalysis higgsAnalysis.cpp higgsAna.o $(ROOTFLAG)
+ZZ_Finalizer: ZZ_Finalize.o Analysis_Electron.o Analysis_Muon.o ZZ_Finalizer.cpp
+	$(CC) -Wall -o ZZ_Finalizer ZZ_Finalizer.cpp ZZ_Finalize.o Analysis_Electron.o Analysis_Muon.o $(ROOTFLAG)
 
 drawPlot_MC: DrawBase.o fitTools.o drawPlot_MC.cpp
 	$(CC) -Wall -I$(CMSSW_BASE)/src/UserCode/lpernie/ -o drawPlot_MC drawPlot_MC.cpp DrawBase.o fitTools.o $(ROOTFLAG) $(EXTRALIBS)
 
-higgsAna.o: higgsAna.c
-	$(CC) $(CFLAGS) higgsAna.c $(ROOTFLAG)
+ZZ_Finalize.o: ZZ_Finalize.C
+	$(CC) $(CFLAGS) ZZ_Finalize.C $(ROOTFLAG)
 
 DrawBase.o: $(CMSSW_BASE)/src/UserCode/lpernie/CommonTools/DrawBase.C fitTools.o
 	$(CC) $(CFLAGS) $(INCLUDES) fitTools.o $(CMSSW_BASE)/src/UserCode/lpernie/CommonTools/DrawBase.C $(ROOTFLAG) $(EXTRALIBS)
 
 fitTools.o: $(CMSSW_BASE)/src/UserCode/lpernie/CommonTools/fitTools.C
 	$(CC) $(CFLAGS) $(INCLUDES) $(CMSSW_BASE)/src/UserCode/lpernie/CommonTools/fitTools.C $(ROOTFLAG) $(EXTRALIBS)
+
+Analysis_Electron.o: Analysis_Electron.cc Analysis_Lepton.o
+	$(CC) $(CFLAGS) Analysis_Electron.cc $(ROOTFLAG)
+
+Analysis_Muon.o: Analysis_Muon.cc Analysis_Lepton.o
+	$(CC) $(CFLAGS) Analysis_Muon.cc $(ROOTFLAG)
+
+Analysis_Lepton.o: Analysis_Lepton.h
+	$(CC) $(CFLAGS) Analysis_Lepton.h $(ROOTFLAG)
 
 clean:
 	rm *.o
