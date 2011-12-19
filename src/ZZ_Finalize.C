@@ -14,10 +14,12 @@
 #include "Analysis_Electron.h"
 #include "Analysis_Muon.h"
 
+inline double delta_phi(double phi1, double phi2);
+
 using namespace std;
 
-void ZZ_Finalize::Loop()
-{
+void ZZ_Finalize::Loop(){
+
 //   In a ROOT session, you can do:
 //      Root > .L ZZ_Finalize.C
 //      Root > ZZ_Finalize t
@@ -55,26 +57,19 @@ void ZZ_Finalize::Loop()
 
 	Long64_t nbytes = 0, nb = 0;
 
-	Bool_t ee;
-	Bool_t mumu;	
-	Bool_t isl1EB;
-	Bool_t isl2EB;
-	Bool_t isThereBJet;
+	Bool_t ee = 0.;
+	Bool_t mumu = 0.;	
+	Bool_t isl1EB = 0.;
+	Bool_t isl2EB = 0.;
+	Bool_t isThereBJet = 0.;
+	Bool_t veto_Jet = 0.;
 
-	Float_t l1_eta;
-	Float_t l2_eta;
-	Float_t l1_pt;
-	Float_t l2_pt;
-	Float_t l1_CRI;
-	Float_t l2_CRI;
-	Float_t ll_px;
-	Float_t ll_py;
-	Float_t ll_pt;
-	Float_t ll_m;
-	Float_t jet_eta;
-	Float_t jet_pt;
+	Float_t l1_CRI = 0.;
+	Float_t l2_CRI = 0.;
+	Float_t jet_eta = 0.;
+	Float_t jet_pt = 0.;
 
-	Float_t finWeight;
+	Float_t finWeight = 0.;
 
 	// event loop
 
@@ -93,50 +88,61 @@ void ZZ_Finalize::Loop()
 		if (!isData) finWeight *= weight;
 	
 		// if (Cut(ientry) < 0) continue;
-		
-		//---------- compute the kinematic ----------		
 
-		TLorentzVector lept1, lept2, lepts;
-		//if((l1_px * l1_px + l1_py * l1_py)==0 || (l2_px * l2_px + l2_py * l2_py)==0 ) continue;
-		lept1.SetPxPyPzE(l1_px,l1_py,l1_pz,l1_en);
-		lept2.SetPxPyPzE(l2_px,l2_py,l2_pz,l2_en);
-		lepts = lept1 + lept2;
-//if( (l1_px * l1_px + l1_py * l1_py)==0 || (l2_px * l2_px + l2_py * l2_py)==0  ) cout<<"))))))))))))"<<endl;
-		l1_pt = sqrt(l1_px * l1_px + l1_py * l1_py); //Zero Ogni tanto
-		l2_pt = sqrt(l2_px * l2_px + l2_py * l2_py);
-		ll_px = l1_px + l2_px;
-		ll_py = l1_py + l2_py;
-		ll_pt = sqrt(ll_px * ll_px + ll_py * ll_py);
-		l1_eta = 0.5*log((l1_en+l1_pz)/(l1_en-l1_pz));
-		l2_eta = 0.5*log((l2_en+l2_pz)/(l2_en-l2_pz));
-		isl1EB = 0; //I'd like to put them in lept class
-		isl2EB = 0;
-		if (fabs( l1_eta ) < 1.4442){ //@@
-			isl1EB = 1;
-			//if(abs(l1_id) == 11) l1_iso1 -= 1.;
-		}
-		if (fabs( l2_eta ) < 1.4442){ //@@
-			isl2EB = 1;
-			//if(abs(l2_id) == 11) l2_iso1 -= 1.;
-		}
-		l1_CRI = (l1_iso1 + l1_iso2 + l1_iso3 - rho * 0.3 * 0.3)/l1_pt; //@@
-		l2_CRI = (l2_iso1 + l2_iso2 + l2_iso3 - rho * 0.3 * 0.3)/l2_pt; //@@
-		ll_m = sqrt( (l1_en+l2_en)*(l1_en+l2_en)
-				- (l1_px+l2_px)*(l1_px+l2_px)
-				- (l1_py+l2_py)*(l1_py+l2_py)
-				- (l1_pz+l2_pz)*(l1_pz+l2_pz) );
+                //---------- Define Variables ----------           
+                TLorentzVector lept1, lept2, lepts;
+		TLorentzVector Jet_loop;
+                lept1.SetPxPyPzE(l1_px,l1_py,l1_pz,l1_en);
+                lept2.SetPxPyPzE(l2_px,l2_py,l2_pz,l2_en);
+                lepts = lept1 + lept2;
 		
-		//---------- start cuts --------------------
+		//---------- Basic Preselection ----------		
 		// check 2 leptons same flavor
 		ee = 0;
 		mumu = 0;
 		if (abs(l1_id) == 11 && abs(l2_id) == 11) ee = 1;
 		else if (abs(l1_id) == 13 && abs(l2_id) == 13) mumu = 1;
 		// check two leptons opposite charge
-		//if (l1_id * l2_id >= 0 || (ee == 0 && mumu == 0)) continue;
 		if ((ee == 0 && mumu == 0)) continue;
 		compteur[1]++;
-		
+
+		// pt minimum for each lepton
+		//if( (lept1.Pt()==0 || lept2.Pt()==0) && (lepts.M()<20. || lepts.M()>110. )  ) cout<<"Very Very strange!"<<endl; //Why data out of the mZ window have Pt=0??
+		if( lept1.Pt() < 20 || lept2.Pt() < 20 ) continue; 
+		compteur[2]++;
+		//---------- compute the kinematic ----
+		isl1EB = 0; //I'd like to put them in lept class
+		isl2EB = 0;
+		if (fabs( lept1.Eta()<20. ) < 1.4442){ 
+			isl1EB = 1;
+			//if(abs(l1_id) == 11) l1_iso1 -= 1.;
+		}
+		if (fabs( lept2.Eta()<20. ) < 1.4442){ 
+			isl2EB = 1;
+			//if(abs(l2_id) == 11) l2_iso1 -= 1.;
+		}
+		l1_CRI = (l1_iso1 + l1_iso2 + l1_iso3 - rho * 0.3 * 0.3)/lept1.Pt(); 
+		l2_CRI = (l2_iso1 + l2_iso2 + l2_iso3 - rho * 0.3 * 0.3)/lept2.Pt(); 
+	
+		//---------- start cuts --------------------	
+		// check pt of the Z candidate
+		if (lepts.Pt() < 30) continue; //@@ 25
+		compteur[3]++;	
+
+                // Jet-Veto @@ ADDED
+                veto_Jet = 0;
+                for (int i = 0; i < jn; i++) {
+                        Jet_loop.SetPxPyPzE(jn_px[i],jn_py[i],jn_pz[i],jn_en[i]);
+                        if( Jet_loop.Pt() > 30. && fabs(Jet_loop.Eta()) < 5. )  veto_Jet = true;
+                }
+		if (veto_Jet) continue; //@@ ADDED
+
+		// MET Cut
+		if( met1_pt < 50. ) continue;
+
+		// Balance cut
+		if( (lepts.E()/lepts.Pt()) < 0.4 || (lepts.E()/lepts.Pt()) > 1.8 ) continue; //@@ ADDED
+
 		// eta fiducial cut
 		/*if (mumu && (fabs(l1_eta) > 2.4 || fabs(l2_eta) > 2.4)) continue;
 		else if (ee){
@@ -145,34 +151,42 @@ void ZZ_Finalize::Loop()
 		}
 		*/
 		// check the pt resolution for the muons
-		//if (mumu && (l1_ptErr/l1_pt > 0.1 || l2_ptErr/l2_pt > 0.1)) continue;
-		
-		// Z mass window
-		if (fabs(ll_m - 91.) > 15.) continue; //@@
-		compteur[2]++; 
-		
-		// b-tagging
+		//if (mumu && (l1_ptErr/l1_pt > 0.1 || l2_ptErr/l2_pt > 0.1)) continue
+
+		// Delta Phi Jet
+		jet_eta = 0.; jet_pt = 0.;
+		float Pt_app_jet = 0, Phi_hardJet = 0.;
+		bool isJet_hard = false;
+                for (int i = 0; i < jn; i++) {
+			Jet_loop.SetPxPyPzE(jn_px[i],jn_py[i],jn_pz[i],jn_en[i]);
+                        if(fabs(Jet_loop.Eta()) < 2.45 && Jet_loop.Pt() > 10. && Jet_loop.Pt() > Pt_app_jet ) {
+                                Pt_app_jet = Jet_loop.Pt();
+                                Phi_hardJet = Jet_loop.Phi();
+				isJet_hard = true;
+                        }
+                }
+		if( isJet_hard && (fabs(delta_phi(Phi_hardJet,met1_phi)) < 0.349) ) continue; //20degrees
+
+                // Delta Phi Z
+		if( delta_phi(met1_phi,lepts.Phi()) < 1.0472 ) continue; //60degrees
+
+		// B-tagging
 		isThereBJet = 0;
-		
+		jet_eta = 0.; jet_pt = 0.;
 		for (int i = 0; i < jn; i++) {
-			jet_eta = 0.5*log((jn_en[i]+jn_pz[i])/(jn_en[i]-jn_pz[i]));
-			jet_pt = sqrt(jn_px[i]*jn_px[i] + jn_py[i]*jn_py[i]);
-			if(fabs(jet_eta) < 2.4 && jet_pt > 30. && jn_btag1[i] >= 2) {
+                        Jet_loop.SetPxPyPzE(jn_px[i],jn_py[i],jn_pz[i],jn_en[i]);
+			if(fabs(Jet_loop.Eta()) < 2.4 && Jet_loop.Pt() > 30. && jn_btag1[i] >= 2) {
 				isThereBJet = 1;
 				i = jn;
 			}
 		}
 		if (isThereBJet) continue;
-		compteur[3]++;
-	
-		// check pt of the Z candidate
-		if (ll_pt < 25) continue; //@@
-		compteur[4]++;	
+		compteur[4]++;
 		
 		// reject events with more than 2 leptons
 		if (ln > 0){
-			if (abs(ln_id[0]) == 11 && sqrt(ln_px[0]*ln_px[0]+ln_py[0]*ln_py[0])>10. ) continue;
-			if (abs(ln_id[0]) == 13 ) continue;
+			if (abs(ln_id[0]) == 11 && sqrt(ln_px[0]*ln_px[0]+ln_py[0]*ln_py[0])>20. ) continue; //was10
+			if (abs(ln_id[0]) == 13 && sqrt(ln_px[0]*ln_px[0]+ln_py[0]*ln_py[0])>20. ) continue; //was no pt requirement
 		}
 		compteur[5]++;		
 		
@@ -180,33 +194,29 @@ void ZZ_Finalize::Loop()
 		if (mumu && (l1_CRI > 0.15 || l2_CRI > 0.15)) continue;
 		else if (ee && (l1_CRI > 0.15 || l2_CRI > 0.15)) continue;
 		compteur[6]++;		
-	
 		
-				
-		// pt minimum for each lepton
-		if (l1_pt < 20 || l2_pt < 20) continue; //@@
-		compteur[7]++;
-		
-
+		// Z mass window
+		if ( lepts.M() < 80 || lepts.M() > 100 ) continue; //@@+-15
+		compteur[7]++; 
 	
 		// Fill histos
 		if (ee){
-			hee_llMass->Fill(ll_m, finWeight);
-			hee_llPt->Fill(ll_pt, finWeight);
-			hee_l1Eta->Fill(l1_eta, finWeight);
-			hee_l2Eta->Fill(l2_eta, finWeight);
-			hee_l1Pt->Fill(l1_pt, finWeight);
-			hee_l2Pt->Fill(l2_pt, finWeight);
+			hee_llMass->Fill(lepts.M(), finWeight);
+			hee_llPt->Fill(lepts.Pt(), finWeight);
+			hee_l1Eta->Fill(lept1.Eta(), finWeight);
+			hee_l2Eta->Fill(lept2.Eta(), finWeight);
+			hee_l1Pt->Fill(lept1.Pt(), finWeight);
+			hee_l2Pt->Fill(lept2.Pt(), finWeight);
 			hee_MET1Pt->Fill(met1_pt, finWeight);
 			compteurEE++;
 		}
 		else if (mumu){
-			hmumu_llMass->Fill(ll_m, finWeight);
-			hmumu_llPt->Fill(ll_pt, finWeight);
-			hmumu_l1Eta->Fill(l1_eta, finWeight);
-			hmumu_l2Eta->Fill(l2_eta, finWeight);
-			hmumu_l1Pt->Fill(l1_pt, finWeight);
-			hmumu_l2Pt->Fill(l2_pt, finWeight);
+			hmumu_llMass->Fill(lepts.M(), finWeight);
+			hmumu_llPt->Fill(lepts.Pt(), finWeight);
+			hmumu_l1Eta->Fill(lept1.Eta(), finWeight);
+			hmumu_l2Eta->Fill(lept2.Eta(), finWeight);
+			hmumu_l1Pt->Fill(lept1.Pt(), finWeight);
+			hmumu_l2Pt->Fill(lept2.Pt(), finWeight);
 			hmumu_MET1Pt->Fill(met1_pt, finWeight);
 			compteurMuMu++;
 		} 
@@ -242,12 +252,11 @@ void ZZ_Finalize::Loop()
 	}
 	cout << endl;
 	cout << "compteurEE = " << compteurEE << "  compteurMuMu = " << compteurMuMu << endl;
-
 }
 
 
-void ZZ_Finalize::Plot(string histoName)
-{
+void ZZ_Finalize::Plot(string histoName){
+
 	string temp1 = "hee_" + histoName;
 	string temp2 = "hmumu_" + histoName;
 	string temp3 = histoName;
@@ -462,4 +471,8 @@ void ZZ_Finalize::Plot(string histoName)
 
 }
 
-
+// Delta Phi
+inline double delta_phi(double phi1, double phi2) {
+  double dphi = TMath::Abs(phi1 - phi2);
+  return (dphi <= TMath::Pi())? dphi : TMath::TwoPi() - dphi;
+}
