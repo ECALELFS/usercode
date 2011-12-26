@@ -1,6 +1,7 @@
 #define ZZ_Finalize_cxx
 #include "ZZ_Finalize.h"
 #include <TH2.h>
+#include <TGraph.h>
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <string.h>
@@ -46,12 +47,24 @@ void ZZ_Finalize::Loop(){
 	if (fChain == 0) return;
 	
 	#include "Include/higgsDeclaration.h"
-	Int_t compteur[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-	Int_t compteurEE = 0;
-	Int_t compteurMuMu = 0;
+	float Eff_Preselection = 0.;
+	float Eff_Two_leptons = 0.;
+	float Eff_Pt = 0.;
+	float Eff_Z_Pt = 0.;
+	float Eff_Jet_Veto = 0.;
+	float Eff_MET = 0.;
+	float Eff_Balance = 0.;
+	float Eff_Jet_Phi = 0.;
+	float Eff_Z_Phi = 0.;
+	float Eff_B_Veto = 0.;
+	float Eff_Lept_Veto = 0.;
+	float Eff_ISO = 0.;
+	float Eff_Z_Mass = 0.;
+	float Eff_FinalEE = 0.;
+	float Eff_FinalMuMu = 0.;
 
 	TDirectory *dir = gDirectory;
-	TFile *file = new TFile(outputFileName, "RECREATE");
+	TFile *file = new TFile(outputFileName_, "RECREATE");
 
 	Long64_t nentries = fChain->GetEntriesFast(); // Entries number fot TChain
 
@@ -81,13 +94,13 @@ void ZZ_Finalize::Loop(){
 		nb = fChain->GetEntry(jentry);   nbytes += nb;
 		
 
-		compteur[0]++;
-		
+		Eff_Preselection++;
+
 		// reweighting for pile up
-		finWeight = 1;
-		if (!isData) finWeight *= weight;
-	
-		// if (Cut(ientry) < 0) continue;
+		finWeight = 1.;
+		//if ( isData_ == 0 ) finWeight *= weight;
+		if ( isData_ == 0 ) finWeight *= eeScaling_;
+		//if (Cut(ientry) < 0) continue;
 
                 //---------- Define Variables ----------           
                 TLorentzVector lept1, lept2, lepts;
@@ -102,14 +115,37 @@ void ZZ_Finalize::Loop(){
 		mumu = 0;
 		if (abs(l1_id) == 11 && abs(l2_id) == 11) ee = 1;
 		else if (abs(l1_id) == 13 && abs(l2_id) == 13) mumu = 1;
+		//else cout<<"Not ee or mumu but something else. Strange!"<<endl;
 		// check two leptons opposite charge
 		if ((ee == 0 && mumu == 0)) continue;
-		compteur[1]++;
-
+		Eff_Two_leptons++;
 		// pt minimum for each lepton
 		//if( (lept1.Pt()==0 || lept2.Pt()==0) && (lepts.M()<20. || lepts.M()>110. )  ) cout<<"Very Very strange!"<<endl; //Why data out of the mZ window have Pt=0??
-		if( lept1.Pt() < 20 || lept2.Pt() < 20 ) continue; 
-		compteur[2]++;
+		if( lept1.Pt() < 20 || lept2.Pt() < 20 ) continue;
+		Eff_Pt++;
+
+		//---------- Beginning Histo ----------
+                if (ee){
+                        hee_in_llMass->Fill(lepts.M(), finWeight);
+                        hee_in_llPt->Fill(lepts.Pt(), finWeight);
+                        hee_in_l1Eta->Fill(lept1.Eta(), finWeight);
+                        hee_in_l2Eta->Fill(lept2.Eta(), finWeight);
+                        hee_in_l1Pt->Fill(lept1.Pt(), finWeight);
+                        hee_in_l2Pt->Fill(lept2.Pt(), finWeight);
+                        hee_in_MET1Pt->Fill(met1_pt, finWeight);
+                        hee_in_rho->Fill(rho, finWeight);
+                }
+                else if (mumu){
+                        hmumu_in_llMass->Fill(lepts.M(), finWeight);
+                        hmumu_in_llPt->Fill(lepts.Pt(), finWeight);
+                        hmumu_in_l1Eta->Fill(lept1.Eta(), finWeight);
+                        hmumu_in_l2Eta->Fill(lept2.Eta(), finWeight);
+                        hmumu_in_l1Pt->Fill(lept1.Pt(), finWeight);
+                        hmumu_in_l2Pt->Fill(lept2.Pt(), finWeight);
+                        hmumu_in_MET1Pt->Fill(met1_pt, finWeight);
+                        hmumu_in_rho->Fill(rho, finWeight);
+                }
+
 		//---------- compute the kinematic ----
 		isl1EB = 0; //I'd like to put them in lept class
 		isl2EB = 0;
@@ -127,7 +163,7 @@ void ZZ_Finalize::Loop(){
 		//---------- start cuts --------------------	
 		// check pt of the Z candidate
 		if (lepts.Pt() < 30) continue; //@@ 25
-		compteur[3]++;	
+		Eff_Z_Pt++;	
 
                 // Jet-Veto @@ ADDED
                 veto_Jet = 0;
@@ -136,12 +172,15 @@ void ZZ_Finalize::Loop(){
                         if( Jet_loop.Pt() > 30. && fabs(Jet_loop.Eta()) < 5. )  veto_Jet = true;
                 }
 		if (veto_Jet) continue; //@@ ADDED
+		Eff_Jet_Veto++;
 
 		// MET Cut
 		if( met1_pt < 50. ) continue;
+		Eff_MET++;
 
 		// Balance cut
 		if( (lepts.E()/lepts.Pt()) < 0.4 || (lepts.E()/lepts.Pt()) > 1.8 ) continue; //@@ ADDED
+		Eff_Balance++;
 
 		// eta fiducial cut
 		/*if (mumu && (fabs(l1_eta) > 2.4 || fabs(l2_eta) > 2.4)) continue;
@@ -165,10 +204,12 @@ void ZZ_Finalize::Loop(){
 				isJet_hard = true;
                         }
                 }
+		Eff_Jet_Phi++;
 		if( isJet_hard && (fabs(delta_phi(Phi_hardJet,met1_phi)) < 0.349) ) continue; //20degrees
 
                 // Delta Phi Z
 		if( delta_phi(met1_phi,lepts.Phi()) < 1.0472 ) continue; //60degrees
+		Eff_Z_Phi++;
 
 		// B-tagging
 		isThereBJet = 0;
@@ -181,24 +222,25 @@ void ZZ_Finalize::Loop(){
 			}
 		}
 		if (isThereBJet) continue;
-		compteur[4]++;
+		Eff_B_Veto++;
+
 		
 		// reject events with more than 2 leptons
 		if (ln > 0){
 			if (abs(ln_id[0]) == 11 && sqrt(ln_px[0]*ln_px[0]+ln_py[0]*ln_py[0])>20. ) continue; //was10
 			if (abs(ln_id[0]) == 13 && sqrt(ln_px[0]*ln_px[0]+ln_py[0]*ln_py[0])>20. ) continue; //was no pt requirement
 		}
-		compteur[5]++;		
+		Eff_Lept_Veto++;
 		
 		// check the isolation of the leptons
 		if (mumu && (l1_CRI > 0.15 || l2_CRI > 0.15)) continue;
 		else if (ee && (l1_CRI > 0.15 || l2_CRI > 0.15)) continue;
-		compteur[6]++;		
-		
+		Eff_ISO++;
+
 		// Z mass window
 		if ( lepts.M() < 80 || lepts.M() > 100 ) continue; //@@+-15
-		compteur[7]++; 
-	
+		Eff_Z_Mass++;
+
 		// Fill histos
 		if (ee){
 			hee_llMass->Fill(lepts.M(), finWeight);
@@ -208,7 +250,8 @@ void ZZ_Finalize::Loop(){
 			hee_l1Pt->Fill(lept1.Pt(), finWeight);
 			hee_l2Pt->Fill(lept2.Pt(), finWeight);
 			hee_MET1Pt->Fill(met1_pt, finWeight);
-			compteurEE++;
+			hee_rho->Fill(rho, finWeight);
+			Eff_FinalEE++;
 		}
 		else if (mumu){
 			hmumu_llMass->Fill(lepts.M(), finWeight);
@@ -218,13 +261,13 @@ void ZZ_Finalize::Loop(){
 			hmumu_l1Pt->Fill(lept1.Pt(), finWeight);
 			hmumu_l2Pt->Fill(lept2.Pt(), finWeight);
 			hmumu_MET1Pt->Fill(met1_pt, finWeight);
-			compteurMuMu++;
+			hmumu_rho->Fill(rho, finWeight);
+			Eff_FinalMuMu++;
 		} 
 
-			
 	}
 
-
+/*
 	// display histogram
 	
 	hee_llMass->SetXTitle("M_{ll}  (GeV)");
@@ -240,235 +283,28 @@ void ZZ_Finalize::Loop(){
 	hmumu_MET1Pt->SetXTitle("MET1  (GeV)");
 	hmumu_l1Eta->SetXTitle("#eta");
 	hmumu_l2Eta->SetXTitle("#eta");
-	
+*/	
 	
 	dir->GetList()->Write();
 	file->Close();
 	dir->GetList()->Delete();
 
 	cout << endl;	
-	for (int i = 0; i<8; i++){
-		cout <<" compteur  "<<i<< "  " <<  compteur[i] << endl;
-	}
+	cout << "Preselection: " << Eff_Preselection << endl;
+	cout << "Two_leptons: " << Eff_Two_leptons << "  Eff_tot: " << Eff_Two_leptons/Eff_Preselection << "  Eff_parz: " << Eff_Two_leptons/Eff_Preselection << endl;
+	cout << "Pt: " << Eff_Pt <<  "  Eff_tot: " << Eff_Pt/Eff_Preselection << "  Eff_parz: " << Eff_Pt/Eff_Two_leptons << endl;
+	cout << "Z_Pt: " << Eff_Z_Pt <<  "  Eff_tot: " << Eff_Z_Pt/Eff_Preselection << "  Eff_parz: " << Eff_Z_Pt/Eff_Pt << endl;
+        cout << "Jet_Veto: " << Eff_Jet_Veto <<  "  Eff_tot: " << Eff_Jet_Veto/Eff_Preselection << "  Eff_parz: " << Eff_Jet_Veto/Eff_Z_Pt << endl;
+        cout << "MET: " << Eff_MET <<  "  Eff_tot: " << Eff_MET/Eff_Preselection << "  Eff_parz: " << Eff_MET/Eff_Jet_Veto << endl;
+        cout << "Balance: " << Eff_Balance <<  "  Eff_tot: " << Eff_Balance/Eff_Preselection << "  Eff_parz: " << Eff_Balance/Eff_MET << endl;
+        cout << "Jet_Phi: " << Eff_Jet_Phi <<  "  Eff_tot: " << Eff_Jet_Phi/Eff_Preselection << "  Eff_parz: " << Eff_Jet_Phi/Eff_Balance << endl;
+        cout << "Z_Phi: " << Eff_Z_Phi <<  "  Eff_tot: " << Eff_Z_Phi/Eff_Preselection << "  Eff_parz: " << Eff_Z_Phi/Eff_Jet_Phi << endl;
+        cout << "B_Veto: " << Eff_B_Veto <<  "  Eff_tot: " << Eff_B_Veto/Eff_Preselection << "  Eff_parz: " << Eff_B_Veto/Eff_Z_Phi << endl;
+        cout << "Lept_Veto: " << Eff_Lept_Veto <<  "  Eff_tot: " << Eff_Lept_Veto/Eff_Preselection << "  Eff_parz: " << Eff_Lept_Veto/Eff_B_Veto << endl;
+        cout << "ISO: " << Eff_ISO <<  "  Eff_tot: " << Eff_ISO/Eff_Preselection << "  Eff_parz: " << Eff_ISO/Eff_Lept_Veto << endl;
+        cout << "Z_Mass: " << Eff_Z_Mass <<  "  Eff_tot: " << Eff_Z_Mass/Eff_Preselection << "  Eff_parz: " << Eff_Z_Mass/Eff_ISO << endl;
 	cout << endl;
-	cout << "compteurEE = " << compteurEE << "  compteurMuMu = " << compteurMuMu << endl;
-}
-
-
-void ZZ_Finalize::Plot(string histoName){
-
-	string temp1 = "hee_" + histoName;
-	string temp2 = "hmumu_" + histoName;
-	string temp3 = histoName;
-	char *eeName, *mumuName, *Name;
-	eeName = new char [temp1.size()+1];
-	mumuName = new char [temp2.size()+1];
-	Name = new char [temp3.size()];
-	strcpy (eeName, temp1.c_str());
-	strcpy (mumuName, temp2.c_str());
-	strcpy (Name, temp3.c_str());
-	
-
-	
-	isData = 1;
-	leptonType = 11;
-	SetFiles();
-	TFile *eeDataFile = new TFile(outputFileName, "READ");
-	TH1F *hee_data = (TH1F*) eeDataFile->Get(eeName);
-	hee_data->SetMarkerStyle(20);
-	hee_data->SetMarkerColor(1);
-	hee_data->SetLineColor(1);
-	hee_data->SetMarkerSize(1);
-	
-	leptonType = 13;
-	SetFiles();
-	TFile *mumuDataFile = new TFile(outputFileName, "READ");
-	TH1F *hmumu_data = (TH1F*) mumuDataFile->Get(mumuName);
-	hmumu_data->SetMarkerStyle(20);
-	hmumu_data->SetMarkerColor(1);
-	hmumu_data->SetLineColor(1);
-	hmumu_data->SetMarkerSize(1);
-
-	TCanvas *can = new TCanvas(Name, Name, 0, 0, 840, 800);
-	can->Divide(2,2);
-	
-	can->cd(1);
-	hee_data->DrawCopy("e");
-	can->cd(3);
-	hmumu_data->DrawCopy("e");
-	can->cd(2);
-	can->cd(2)->SetLogy();
-	hee_data->SetMinimum(0.0009);
-	hee_data->DrawCopy("e");
-	can->cd(4);
-	can->cd(4)->SetLogy();
-	hmumu_data->SetMinimum(0.0009);
-	hmumu_data->DrawCopy("e");
-	
-
-	TFile *MCFile[20];
-	TH1F *hee_MC[20];
-	TH1F *hmumu_MC[20];
-
-	isData = 0;
-	
-	cout << endl << "SCALING" << endl;
-	for (int i = 0; i < 20; i++){
-		SetFiles(i+11);
-		MCFile[i] = new TFile(outputFileName, "READ");
-		hee_MC[i] = (TH1F*) MCFile[i]->Get(eeName);
-		hee_MC[i]->Scale(eeScaling[i]);	
-		hmumu_MC[i] = (TH1F*) MCFile[i]->Get(mumuName);
-		hmumu_MC[i]->Scale(mumuScaling[i]);
-		
-		
-		//cout <<" ee:  " << eeScaling[i] << "   mumu: " << mumuScaling[i] << endl;
-		
-	
-	}
-
-	// add histograms
-
-	Color_t colors[20] = {kGreen-10,0,0,0,0,0,0,0,0, kRed+2, kGreen-6, kGreen+1,0,0,0,0,0, kAzure-6, kBlue-6, kBlue-10}; 	
-	//Int_t colors[20] = {30,0,0,0,0,0,0,0,0, 50, 72, 8,0,0,0,0,0, 54, 51, 38}; 
-	//Int_t colors[8] = {50, 66, 91, 0, 0, 59, 51, 8}; 
-
-	// DY + WJets + Top + WW + WZ + ZZ
-	// WJets + Top + WW + WZ + ZZ
-	// Top + WW + WZ + ZZ
-	// WW + WZ + ZZ
-	// WZ + ZZ
-	// ZZ
-	for (int j = 0; j < 20; j++){
-		if ( (j >=1 && j<=8) || (j >= 12 && j <= 16) ) continue;
-		for (int i = j+1; i < 20; i++){
-			hee_MC[j]->Add(hee_MC[i]);
-			hmumu_MC[j]->Add(hmumu_MC[i]);
-		}
-		can->cd(1);
-		hee_MC[j]->SetFillColor(colors[j]);
-		hee_MC[j]->DrawCopy("same");
-		can->cd(2);
-		hee_MC[j]->SetMinimum(0.0009);
-		hee_MC[j]->DrawCopy("same");
-		can->cd(3);
-		hmumu_MC[j]->SetFillColor(colors[j]);
-		hmumu_MC[j]->DrawCopy("same");
-		can->cd(4);
-		hmumu_MC[j]->SetMinimum(0.0009);
-		hmumu_MC[j]->DrawCopy("same");
-
-		//cout << " ee    " << hee_MC[j]->GetName() << " " << hee_MC[j]->Integral();
-		//cout << "    mumu  " << hmumu_MC[j]->GetName() << " " << hmumu_MC[j]->Integral() << endl;
-	}
-	for (int j = 0; j < 19; j++){
-		if ( (j >=1 && j<=8) || (j >= 12 && j <= 16) ) continue;
-		cout << " ee  " << hee_MC[j]->Integral() - hee_MC[j+1]->Integral();
-		cout << "   mumu  " << hmumu_MC[j]->Integral() - hmumu_MC[j+1]->Integral() << endl;
-	}
-		cout << " ee  " << hee_MC[19]->Integral() ;
-		cout << "   mumu  " << hmumu_MC[19]->Integral() << endl;
-	
-	
-	// electrons
-	can->cd(1);
-	hee_data->DrawCopy("esame");
-	can->cd(1)->RedrawAxis();
-	
-	can->cd(2);
-	//for (int i = 1; i< 20; i++) {
-	//	hee_MC[0]->Add(hee_MC[i]);
-	//}
-	//hee_MC[0]->SetMinimum(0.09);
-	//hee_MC[0]->DrawCopy("same");
-	hee_data->SetMinimum(0.0009);
-	hee_data->DrawCopy("esame");
-	can->cd(2)->RedrawAxis();
-	
-	// muons
-	can->cd(3);
-	hmumu_data->DrawCopy("esame");
-	can->cd(3)->RedrawAxis();
-	
-	can->cd(4);
-	hmumu_data->SetMinimum(0.0009);
-	hmumu_data->DrawCopy("esame");
-	can->cd(4)->RedrawAxis();
-
-
-	can->cd(2);
-	TLegend *leg = new TLegend(0.5, 0.55, 0.75, 0.8);
-	leg->SetBorderSize(0);
-	leg->SetFillStyle(0);
-	TLegendEntry *entry=leg->AddEntry(hee_MC[0], "Z+Jets","f");
-	entry->SetFillStyle(1001);
-	entry->SetFillColor(kGreen-10);
-	entry=leg->AddEntry(hee_MC[9], "W+Jets","f");
-	entry->SetFillStyle(1001);
-	entry->SetFillColor(kRed+2);
-	entry=leg->AddEntry(hee_MC[10], "TTJets","f");
-	entry->SetFillStyle(1001);
-	entry->SetFillColor(kGreen-6);
-	entry=leg->AddEntry(hee_MC[11], "Top","f");
-	entry->SetFillStyle(1001);
-	entry->SetFillColor(kGreen+1);
-	entry=leg->AddEntry(hee_MC[17], "WZ","f");
-	entry->SetFillStyle(1001);
-	entry->SetFillColor(kAzure-6);
-	entry=leg->AddEntry(hee_MC[18], "WW","f");
-	entry->SetFillStyle(1001);
-	entry->SetFillColor(kBlue-6);
-	entry=leg->AddEntry(hee_MC[19], "ZZ","f");
-	entry->SetFillStyle(1001);
-	entry->SetFillColor(kBlue-10);
-	entry=leg->AddEntry(hee_data, "data ee", "ple");
-	entry->SetMarkerStyle(20);
-	leg->Draw();
-
-	can->cd(4);
-	TLegend *leg2 = new TLegend(0.5, 0.55, 0.75, 0.8);
-	leg2->SetBorderSize(0);
-	leg2->SetFillStyle(0);
-	entry=leg2->AddEntry(hee_MC[0], "Z+Jets","f");
-	entry->SetFillStyle(1001);
-	entry->SetFillColor(kGreen-10);
-	entry=leg2->AddEntry(hee_MC[9], "W+Jets","f");
-	entry->SetFillStyle(1001);
-	entry->SetFillColor(kRed+2);
-	entry=leg2->AddEntry(hee_MC[10], "TTJets","f");
-	entry->SetFillStyle(1001);
-	entry->SetFillColor(kGreen-6);
-	entry=leg2->AddEntry(hee_MC[11], "Top","f");
-	entry->SetFillStyle(1001);
-	entry->SetFillColor(kGreen+1);
-	entry=leg2->AddEntry(hee_MC[17], "WZ","f");
-	entry->SetFillStyle(1001);
-	entry->SetFillColor(kAzure-6);
-	entry=leg2->AddEntry(hee_MC[18], "WW","f");
-	entry->SetFillStyle(1001);
-	entry->SetFillColor(kBlue-6);
-	entry=leg2->AddEntry(hee_MC[19], "ZZ","f");
-	entry->SetFillStyle(1001);
-	entry->SetFillColor(kBlue-10);
-
-	entry=leg2->AddEntry(hee_data, "data #mu #mu", "ple");
-	entry->SetMarkerStyle(20);
-	leg2->Draw();
-
-
-	cout << hee_MC[0]->Integral() << endl;
-	cout << hee_data->GetSumOfWeights() << endl << endl;
-	cout << hmumu_MC[0]->Integral() << endl;
-	cout << hmumu_data->GetSumOfWeights() << endl;
-
-	
-	for (int i = 0; i < 20; i++){
-		MCFile[i]->Close();
-	}
-	eeDataFile->Close();
-	mumuDataFile->Close();
-
-
+	cout << "FinalEE = " << Eff_FinalEE << "  FinalMuMu = " << Eff_FinalMuMu << endl;
 }
 
 // Delta Phi
