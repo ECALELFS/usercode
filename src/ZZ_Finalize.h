@@ -35,8 +35,7 @@ public :
 	TString Dataset_;
 	float CrossSect_;
 
-	Float_t eeScaling_;
-	Float_t mumuScaling_;
+	Float_t Scaling_;
 
 	char title[100];
 
@@ -44,7 +43,6 @@ public :
 	#include "Include/higgsVar_Nov.h"
 	// List of branches
 	#include "Include/higgsBranches_Nov.h"
-
 
 	ZZ_Finalize();
 	virtual ~ZZ_Finalize();
@@ -57,7 +55,6 @@ public :
 	virtual void     Loop();
 	virtual Bool_t   Notify();
 	virtual void     Show(Long64_t entry = -1);
-
 };
 
 #endif
@@ -107,7 +104,7 @@ void ZZ_Finalize::SetInput(TString dataset){
 	else if( Dataset_.Contains("ZZ") ) CrossSect_ = 5.9;			// ZZ
 	else cout<<"Dataset unknow... Try again."<<endl;
 
-	cout<<"Dataset: "<<Dataset_<<" Cross Section: "<<CrossSect_<<" LeptonType: "<<leptonType_<<" IsData: "<<isData_<<endl;
+	cout<<"Dataset: "<<Dataset_<<" Cross Section: "<<CrossSect_<<" IsData: "<<isData_<<endl;
 
 //------ADDING FILE AND COMPUTING Ngen
         Float_t nGen = 0.;
@@ -140,14 +137,13 @@ void ZZ_Finalize::SetInput(TString dataset){
 
 	if( isData_==1 ){ CrossSect_=1.; nGen=1.; }
 
-        cout  <<"MC luminosities (1 for Data): "<<nGen*1./CrossSect_<<endl;
-        cout  <<"SCALING (Lumin. for Data ): "<<4615.*CrossSect_*1./nGen<<endl;
+        cout  <<"MC luminosities (1 for Data): "<<nGen/CrossSect_<<endl;
+        cout  <<"SCALING (Lumin. for Data ): "<<CrossSect_/nGen<<endl;
 
-        //eeScaling_ = 4615.*CrossSect_*1./nGen;
-        eeScaling_ = CrossSect_/nGen;
-        mumuScaling_ = eeScaling_;
+        Scaling_ = CrossSect_/nGen;
 
-	if( isData_==1 ){ eeScaling_=1.; mumuScaling_=1.; }
+
+	if( isData_==1 ) Scaling_=1.;
 
         tree = chain;
         Init(tree);
