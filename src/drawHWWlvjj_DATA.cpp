@@ -35,66 +35,69 @@ int main(int argc, char* argv[]) {
   db->set_outputdir(outputdir_str);
 
   //--------- Monte Carlo
-  TFile* mcBkg_DY = TFile::Open("Output/MC/histosDYJetsToLL.root");
+  TFile* mcBkg_DY = TFile::Open("Output/MC/histosfiles_DYJetsToLL.root");
   db->add_mcFile(mcBkg_DY, "DY", " DY ", 39);
-  TFile* mcBkg_WJets = TFile::Open("Output/MC/histosWJetsToLNu.root");
+  TFile* mcBkg_WJets = TFile::Open("Output/MC/histosfiles_WJetsToLNu.root");
   db->add_mcFile(mcBkg_WJets, "WJets", "W + Jets", 38);
-  TFile* mcBkg_TT = TFile::Open("Output/MC/histosTTJets.root");
+  TFile* mcBkg_TT = TFile::Open("Output/MC/histosfiles_TTJets.root");
   db->add_mcFile(mcBkg_TT, "tt", " tt ", 30);
 
-  TFile* mcBkg_WW = TFile::Open("Output/MC/histosWW.root");
+  TFile* mcBkg_WW = TFile::Open("Output/MC/histosfiles_WW.root");
   db->add_mcFile(mcBkg_WW, "WW", " WW ", 7);
-  TFile* mcBkg_ZZ = TFile::Open("Output/MC/histosZZ.root");
+  TFile* mcBkg_ZZ = TFile::Open("Output/MC/histosfiles_ZZ.root");
   db->add_mcFile(mcBkg_ZZ, "ZZ", " ZZ ", 2);
-  TFile* mcBkg_WZ = TFile::Open("Output/MC/histosWZ.root");
+  TFile* mcBkg_WZ = TFile::Open("Output/MC/histosfiles_WZ.root");
   db->add_mcFile(mcBkg_WZ, "WZ", " WZ ", 8);
 
   //--------- DATA
-  //TFile* Data_ = TFile::Open("Output/Data/histosDoubleElectrons.root");
   TFile* Data_ = TFile::Open("Output/Data/histosDoubleData.root");
   db->add_dataFile(Data_, "Data", " Data ", 1);
 
-  db->set_lumiNormalization( 4615. ); //1 fb-1 li somma e norm alla lumi
-  //db->set_noStack( false);//(bool)true );
+  //db->set_lumiNormalization( 4615. ); //1 fb-1 li somma e norm alla lumi
+  db->set_noStack( false);//(bool)true );
   //db->set_shapeNormalization();
-  
+ 
 // HISTO ee
   db->drawHisto( "hee_in_llMass", "ee Invariant mass", "GeV/c^{2}", "Events", true);
-  db->drawHisto( "hee_in_llPt", "Di-lepton Transverse Momentum", "GeV/c", "Events", true);
-  db->drawHisto( "hee_in_l1Pt", "Lead. lepton Transverse Momentum", "GeV/c", "Events", true);
-  db->drawHisto( "hee_in_l2Pt", "SubLead. Lepton Transverse Momentum", "GeV/c", "Events", true);
+  db->drawHisto( "hee_in_llPt", "Di-lepton Trans. Momentum", "GeV/c", "Events", true);
+  db->drawHisto( "hee_in_l1Pt", "Lead. lepton Trans. Momentum", "GeV/c", "Events", true);
+  db->drawHisto( "hee_in_l2Pt", "Sub. Lepton Trans. Momentum", "GeV/c", "Events", true);
   db->drawHisto( "hee_in_MET1Pt", "Missing Energy", "GeV/c", "Events", true);
   db->drawHisto( "hee_in_l1Eta", "Lead. lepton #eta", "", "Events", true);
-  db->drawHisto( "hee_in_l2Eta", "SubLead. lepton #eta", "", "Events", true);
+  db->drawHisto( "hee_in_l2Eta", "Sub. lepton #eta", "", "Events", true);
   db->drawHisto( "hee_in_rho", "Rho density", "GeV/Area", "Events", true);
+  db->drawHisto( "hee_in_nvtx", "Numb. of vertices", "", "Events", true);
 
   db->drawHisto( "hee_llMass", "ee Invariant mass", "GeV/c^{2}", "Events", true);
-  db->drawHisto( "hee_llPt", "Di-lepton Transverse Momentum", "GeV/c", "Events", true);
-  db->drawHisto( "hee_l1Pt", "Lead. lepton Transverse Momentum", "GeV/c", "Events", true);
-  db->drawHisto( "hee_l2Pt", "SubLead. Lepton Transverse Momentum", "GeV/c", "Events", true);
+  db->drawHisto( "hee_llPt", "Di-lepton Trans. Momentum", "GeV/c", "Events", true);
+  db->drawHisto( "hee_l1Pt", "Lead. lepton Trans. Momentum", "GeV/c", "Events", true);
+  db->drawHisto( "hee_l2Pt", "Sub. Lepton Trans. Momentum", "GeV/c", "Events", true);
   db->drawHisto( "hee_MET1Pt", "Missing Energy", "GeV/c", "Events", true);
   db->drawHisto( "hee_l1Eta", "Lead. lepton #eta", "", "Events", true);
-  db->drawHisto( "hee_l2Eta", "SubLead. lepton #eta", "", "Events", true);
+  db->drawHisto( "hee_l2Eta", "Sub. lepton #eta", "", "Events", true);
   db->drawHisto( "hee_rho", "Rho density", "GeV/Area", "Events", true);
 
 // HISTO mumu
   db->drawHisto( "hmumu_in_llMass", "mumu Invariant mass", "GeV/c^{2}", "Events", true);
-  db->drawHisto( "hmumu_in_llPt", "Di-lepton Transverse Momentum", "GeV/c", "Events", true);
-  db->drawHisto( "hmumu_in_l1Pt", "Lead. lepton Transverse Momentum", "GeV/c", "Events", true);
-  db->drawHisto( "hmumu_in_l2Pt", "SubLead. Lepton Transverse Momentum", "GeV/c", "Events", true);
+  db->drawHisto( "hmumu_in_llPt", "Di-lepton Trans. Momentum", "GeV/c", "Events", true);
+  db->drawHisto( "hmumu_in_l1Pt", "Lead. lepton Trans. Momentum", "GeV/c", "Events", true);
+  db->drawHisto( "hmumu_in_l2Pt", "Sub. Lepton Trans. Momentum", "GeV/c", "Events", true);
   db->drawHisto( "hmumu_in_MET1Pt", "Missing Energy", "GeV/c", "Events", true);
   db->drawHisto( "hmumu_in_l1Eta", "Lead. lepton #eta", "", "Events", true);
-  db->drawHisto( "hmumu_in_l2Eta", "SubLead. lepton #eta", "", "Events", true);
+  db->drawHisto( "hmumu_in_l2Eta", "Sub. lepton #eta", "", "Events", true);
   db->drawHisto( "hmumu_in_rho", "Rho density", "GeV/Area", "Events", true);
- 
+  db->drawHisto( "hmumu_in_nvtx", "Numb. of vertices", "", "Events", true);
+
   db->drawHisto( "hmumu_llMass", "mumu Invariant mass", "GeV/c^{2}", "Events", true);
-  db->drawHisto( "hmumu_llPt", "Di-lepton Transverse Momentum", "GeV/c", "Events", true);
-  db->drawHisto( "hmumu_l1Pt", "Lead. lepton Transverse Momentum", "GeV/c", "Events", true);
-  db->drawHisto( "hmumu_l2Pt", "SubLead. Lepton Transverse Momentum", "GeV/c", "Events", true);
+  db->drawHisto( "hmumu_llPt", "Di-lepton Trans. Momentum", "GeV/c", "Events", true);
+  db->drawHisto( "hmumu_l1Pt", "Lead. lepton Trans. Momentum", "GeV/c", "Events", true);
+  db->drawHisto( "hmumu_l2Pt", "Sub. Lepton Trans. Momentum", "GeV/c", "Events", true);
   db->drawHisto( "hmumu_MET1Pt", "Missing Energy", "GeV/c", "Events", true);
   db->drawHisto( "hmumu_l1Eta", "Lead. lepton #eta", "", "Events", true);
-  db->drawHisto( "hmumu_l2Eta", "SubLead. lepton #eta", "", "Events", true);
+  db->drawHisto( "hmumu_l2Eta", "Sub. lepton #eta", "", "Events", true);
   db->drawHisto( "hmumu_rho", "Rho density", "GeV/Area", "Events", true);
+
+ // db->drawHisto( "h_Nevent", "", "", "Events", true);
 
   delete db;
  
