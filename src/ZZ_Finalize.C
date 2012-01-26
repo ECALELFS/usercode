@@ -50,46 +50,87 @@ void ZZ_Finalize::Loop(){
 	
 	//#include "Include/higgsDeclaration.h"
 
+	TTree * Tree_NVertex = new TTree("Tree_NVertex","Tree for re-weighting N verteces");
+	Float_t Nvtx, finWeight = 1.;
+	Tree_NVertex->Branch("Nvtx", &Nvtx, "Nvtx/I");
+	Tree_NVertex->Branch("finWeight", &finWeight, "finWeight/F");
+
 // HISTO ee
-        TH1F * hee_in_llMass    = new TH1F("hee_in_llMass", "Dilepton Invariant mass", 20, 75., 110.);
-        TH1F * hee_in_llPt      = new TH1F("hee_in_llPt", "Transvers momentum of lepton pair", 30, 25., 325.);
-        TH1F * hee_in_l1Pt      = new TH1F("hee_in_l1Pt", "Transvers momentum of lepton 1", 25, 20., 100.);
-        TH1F * hee_in_l2Pt      = new TH1F("hee_in_l2Pt", "Transvers momentum of lepton 2", 25, 20., 100.);
-        TH1F * hee_in_MET1Pt    = new TH1F("hee_in_MET1Pt", "PF Missing transvers energy", 25, 0., 500.);
-        TH1F * hee_in_l1Eta     = new TH1F("hee_in_l1Eta", "#eta lepton 1", 20, -4.5, 4.5);
-        TH1F * hee_in_l2Eta     = new TH1F("hee_in_l2Eta", "#eta lepton 2", 20, -4.5, 4.5);
-        TH1F * hee_in_rho       = new TH1F("hee_in_rho", "Rho variable", 15, 0., 15.);
-        TH1F * hee_in_nvtx      = new TH1F("hee_in_nvtx", "Number of Good vertex", 20, 0., 20.);
+        TH1F * hee_in_llMass    = new TH1F("hee_in_llMass", "Dilepton Invariant mass", 20, 75., 110.);			hee_in_llMass->Sumw2();
+        TH1F * hee_in_llPt      = new TH1F("hee_in_llPt", "Transvers momentum of lepton pair", 30, 25., 325.);		hee_in_llPt->Sumw2();
+        TH1F * hee_in_l1Pt      = new TH1F("hee_in_l1Pt", "Transvers momentum of lepton 1", 25, 20., 100.);		hee_in_l1Pt->Sumw2();
+        TH1F * hee_in_l2Pt      = new TH1F("hee_in_l2Pt", "Transvers momentum of lepton 2", 25, 20., 100.);		hee_in_l2Pt->Sumw2();
+        TH1F * hee_in_MET1Pt    = new TH1F("hee_in_MET1Pt", "PF Missing transvers energy", 50, 0., 200.);		hee_in_MET1Pt->Sumw2();
+        TH1F * hee_in_l1Eta     = new TH1F("hee_in_l1Eta", "#eta lepton 1", 20, -4.5, 4.5);				hee_in_l1Eta->Sumw2();
+        TH1F * hee_in_l2Eta     = new TH1F("hee_in_l2Eta", "#eta lepton 2", 20, -4.5, 4.5);				hee_in_l2Eta->Sumw2();
+        TH1F * hee_in_rho       = new TH1F("hee_in_rho", "Rho variable", 15, 0., 15.);					hee_in_rho->Sumw2();
+        TH1F * hee_in_nvtx      = new TH1F("hee_in_nvtx", "Number of Good vertex", 20, 0., 20.);			hee_in_nvtx->Sumw2();
 
-        TH1F * hee_llMass       = new TH1F("hee_llMass", "Dilepton Invariant mass", 20, 75., 105.);
-        TH1F * hee_llPt         = new TH1F("hee_llPt", "Transvers momentum of lepton pair", 30, 25., 325.);
-        TH1F * hee_l1Pt         = new TH1F("hee_l1Pt", "Transvers momentum of lepton 1", 25, 20., 200.);
-        TH1F * hee_l2Pt         = new TH1F("hee_l2Pt", "Transvers momentum of lepton 2", 25, 20., 200.);
-        TH1F * hee_MET1Pt       = new TH1F("hee_MET1Pt", "PF Missing transvers energy", 25, 0., 500.);
-        TH1F * hee_l1Eta        = new TH1F("hee_l1Eta", "#eta lepton 1", 20, -2., 2.);
-        TH1F * hee_l2Eta        = new TH1F("hee_l2Eta", "#eta lepton 2", 20, -2., 2.);
-        TH1F * hee_rho          = new TH1F("hee_rho", "Rho variable", 15, 0., 15.);
-        TH1F * hee_nvtx         = new TH1F("hee_nvtx", "Number of Good vertex", 20, 0., 20.);
+        TH1F * hee_llMass       = new TH1F("hee_llMass", "Dilepton Invariant mass", 20, 75., 105.);			hee_llMass->Sumw2();
+        TH1F * hee_llPt         = new TH1F("hee_llPt", "Transvers momentum of lepton pair", 30, 25., 325.);		hee_llPt->Sumw2();
+        TH1F * hee_l1Pt         = new TH1F("hee_l1Pt", "Transvers momentum of lepton 1", 25, 20., 200.);		hee_l1Pt->Sumw2();
+        TH1F * hee_l2Pt         = new TH1F("hee_l2Pt", "Transvers momentum of lepton 2", 25, 20., 200.);		hee_l2Pt->Sumw2();
+        TH1F * hee_MET1Pt       = new TH1F("hee_MET1Pt", "PF Missing transvers energy", 50, 0., 200.);			hee_MET1Pt->Sumw2();
+        TH1F * hee_l1Eta        = new TH1F("hee_l1Eta", "#eta lepton 1", 20, -2., 2.);					hee_l1Eta->Sumw2();
+        TH1F * hee_l2Eta        = new TH1F("hee_l2Eta", "#eta lepton 2", 20, -2., 2.);					hee_l2Eta->Sumw2();
+        TH1F * hee_rho          = new TH1F("hee_rho", "Rho variable", 15, 0., 15.);					hee_rho->Sumw2();
+        TH1F * hee_nvtx         = new TH1F("hee_nvtx", "Number of Good vertex", 20, 0., 20.);				hee_nvtx->Sumw2();
+        TH1F * hee_mZZt         = new TH1F("hee_mZZt", "Di-Boson Mass", 100, 150., 800.);				hee_mZZt->Sumw2();
+
 // HISTO mumu 
-        TH1F * hmumu_in_llMass  = new TH1F("hmumu_in_llMass", "Invariant mass of lepton pair", 20, 75., 110.);
-        TH1F * hmumu_in_llPt    = new TH1F("hmumu_in_llPt", "Transvers momentum of lepton pair", 30, 25., 325.);
-        TH1F * hmumu_in_l1Pt    = new TH1F("hmumu_in_l1Pt", "Transvers momentum of lepton 1", 25, 20., 100.);
-        TH1F * hmumu_in_l2Pt    = new TH1F("hmumu_in_l2Pt", "Transvers momentum of lepton 2", 25, 20., 100.);
-        TH1F * hmumu_in_MET1Pt  = new TH1F("hmumu_in_MET1Pt", "PF Missing transvers energy", 25, 0., 500.);
-        TH1F * hmumu_in_l1Eta   = new TH1F("hmumu_in_l1Eta", "#eta lepton 1", 20, -4.5, 4.5);
-        TH1F * hmumu_in_l2Eta   = new TH1F("hmumu_in_l2Eta", "#eta lepton 2", 20, -4.5, 4.5);
-        TH1F * hmumu_in_rho     = new TH1F("hmumu_in_rho", "Rho variable", 15, 0., 15.);
-        TH1F * hmumu_in_nvtx    = new TH1F("hmumu_in_nvtx", "Number of Good vertex", 20, 0., 20.);
+        TH1F * hmumu_in_llMass  = new TH1F("hmumu_in_llMass", "Invariant mass of lepton pair", 20, 75., 110.);		hmumu_in_llMass->Sumw2();
+        TH1F * hmumu_in_llPt    = new TH1F("hmumu_in_llPt", "Transvers momentum of lepton pair", 30, 25., 325.);	hmumu_in_llPt->Sumw2();
+        TH1F * hmumu_in_l1Pt    = new TH1F("hmumu_in_l1Pt", "Transvers momentum of lepton 1", 25, 20., 100.);		hmumu_in_l1Pt->Sumw2();
+        TH1F * hmumu_in_l2Pt    = new TH1F("hmumu_in_l2Pt", "Transvers momentum of lepton 2", 25, 20., 100.);		hmumu_in_l2Pt->Sumw2();
+        TH1F * hmumu_in_MET1Pt  = new TH1F("hmumu_in_MET1Pt", "PF Missing transvers energy", 50, 0., 200.);		hmumu_in_MET1Pt->Sumw2();
+        TH1F * hmumu_in_l1Eta   = new TH1F("hmumu_in_l1Eta", "#eta lepton 1", 20, -4.5, 4.5);				hmumu_in_l1Eta->Sumw2();
+        TH1F * hmumu_in_l2Eta   = new TH1F("hmumu_in_l2Eta", "#eta lepton 2", 20, -4.5, 4.5);				hmumu_in_l2Eta->Sumw2();
+        TH1F * hmumu_in_rho     = new TH1F("hmumu_in_rho", "Rho variable", 15, 0., 15.);				hmumu_in_rho->Sumw2();
+        TH1F * hmumu_in_nvtx    = new TH1F("hmumu_in_nvtx", "Number of Good vertex", 20, 0., 20.);			hmumu_in_nvtx->Sumw2();
 
-        TH1F * hmumu_llMass     = new TH1F("hmumu_llMass", "Invariant mass of lepton pair", 20, 75., 105.);
-        TH1F * hmumu_llPt       = new TH1F("hmumu_llPt", "Transvers momentum of lepton pair", 30, 25., 325.);
-        TH1F * hmumu_l1Pt       = new TH1F("hmumu_l1Pt", "Transvers momentum of lepton 1", 25, 20., 200.);
-        TH1F * hmumu_l2Pt       = new TH1F("hmumu_l2Pt", "Transvers momentum of lepton 2", 25, 20., 200.);
-        TH1F * hmumu_MET1Pt     = new TH1F("hmumu_MET1Pt", "PF Missing transvers energy", 25, 0., 500.);
-        TH1F * hmumu_l1Eta      = new TH1F("hmumu_l1Eta", "#eta lepton 1", 20, -2., 2.);
-        TH1F * hmumu_l2Eta      = new TH1F("hmumu_l2Eta", "#eta lepton 2", 20, -2., 2.);
-        TH1F * hmumu_rho        = new TH1F("hmumu_rho", "Rho variable", 15, 0., 15.);
-        TH1F * hmumu_nvtx       = new TH1F("hmumu_nvtx", "Number of Good vertex", 20, 0., 20.);
+        TH1F * hmumu_llMass     = new TH1F("hmumu_llMass", "Invariant mass of lepton pair", 20, 75., 105.);		hmumu_llMass->Sumw2();
+        TH1F * hmumu_llPt       = new TH1F("hmumu_llPt", "Transvers momentum of lepton pair", 30, 25., 325.);		hmumu_llPt->Sumw2();
+        TH1F * hmumu_l1Pt       = new TH1F("hmumu_l1Pt", "Transvers momentum of lepton 1", 25, 20., 200.);		hmumu_l1Pt->Sumw2();
+        TH1F * hmumu_l2Pt       = new TH1F("hmumu_l2Pt", "Transvers momentum of lepton 2", 25, 20., 200.);		hmumu_l2Pt->Sumw2();
+        TH1F * hmumu_MET1Pt     = new TH1F("hmumu_MET1Pt", "PF Missing transvers energy", 50, 0., 200.);		hmumu_MET1Pt->Sumw2();
+        TH1F * hmumu_l1Eta      = new TH1F("hmumu_l1Eta", "#eta lepton 1", 20, -2., 2.);				hmumu_l1Eta->Sumw2();
+        TH1F * hmumu_l2Eta      = new TH1F("hmumu_l2Eta", "#eta lepton 2", 20, -2., 2.);				hmumu_l2Eta->Sumw2();
+        TH1F * hmumu_rho        = new TH1F("hmumu_rho", "Rho variable", 15, 0., 15.);					hmumu_rho->Sumw2();
+        TH1F * hmumu_nvtx       = new TH1F("hmumu_nvtx", "Number of Good vertex", 20, 0., 20.);				hmumu_nvtx->Sumw2();
+        TH1F * hmumu_mZZt       = new TH1F("hmumu_mZZt", "Di-Boson Mass", 100, 150., 800.);				hmumu_mZZt->Sumw2();
+// GLOBAL
+        TH1F * h_in_llMass    = new TH1F("h_in_llMass", "Dilepton Invariant mass", 20, 75., 110.);			h_in_llMass->Sumw2();
+        TH1F * h_in_llPt      = new TH1F("h_in_llPt", "Transvers momentum of lepton pair", 30, 25., 325.);		h_in_llPt->Sumw2();
+        TH1F * h_in_l1Pt      = new TH1F("h_in_l1Pt", "Transvers momentum of lepton 1", 25, 20., 100.);			h_in_l1Pt->Sumw2();
+        TH1F * h_in_l2Pt      = new TH1F("h_in_l2Pt", "Transvers momentum of lepton 2", 25, 20., 100.);			h_in_l2Pt->Sumw2();
+        TH1F * h_in_MET1Pt    = new TH1F("h_in_MET1Pt", "PF Missing transvers energy", 50, 0., 200.);			h_in_MET1Pt->Sumw2();
+        TH1F * h_in_l1Eta     = new TH1F("h_in_l1Eta", "#eta lepton 1", 20, -4.5, 4.5);					h_in_l1Eta->Sumw2();
+        TH1F * h_in_l2Eta     = new TH1F("h_in_l2Eta", "#eta lepton 2", 20, -4.5, 4.5);					h_in_l2Eta->Sumw2();
+        TH1F * h_in_rho       = new TH1F("h_in_rho", "Rho variable", 15, 0., 15.);					h_in_rho->Sumw2();
+        TH1F * h_in_nvtx      = new TH1F("h_in_nvtx", "Number of Good vertex", 20, 0., 20.);				h_in_nvtx->Sumw2();
+        TH1F * h_in_phiZMet   = new TH1F("h_in_phiZMet", "Delta Phi Met Z", 30, 0., 3.142);				h_in_phiZMet->Sumw2();
+        TH1F * h_in_MetParallel  = new TH1F("h_in_MetParallel", "Met Z parallel", 100, 0., 300);			h_in_MetParallel->Sumw2();
+        TH1F * h_in_MetTransvers = new TH1F("h_in_MetTransvers", "Met Z transvers", 100, -150., 150);			h_in_MetTransvers->Sumw2();
+
+        TH1F * h_llMass       = new TH1F("h_llMass", "Dilepton Invariant mass", 20, 75., 105.);				h_llMass->Sumw2();
+        TH1F * h_llPt         = new TH1F("h_llPt", "Transvers momentum of lepton pair", 30, 25., 325.);			h_llPt->Sumw2();
+        TH1F * h_l1Pt         = new TH1F("h_l1Pt", "Transvers momentum of lepton 1", 25, 20., 200.);			h_l1Pt->Sumw2();
+        TH1F * h_l2Pt         = new TH1F("h_l2Pt", "Transvers momentum of lepton 2", 25, 20., 200.);			h_l2Pt->Sumw2();
+        TH1F * h_MET1Pt       = new TH1F("h_MET1Pt", "PF Missing transvers energy", 50, 0., 200.);			h_MET1Pt->Sumw2();
+        TH1F * h_l1Eta        = new TH1F("h_l1Eta", "#eta lepton 1", 20, -2., 2.);					h_l1Eta->Sumw2();
+        TH1F * h_l2Eta        = new TH1F("h_l2Eta", "#eta lepton 2", 20, -2., 2.);					h_l2Eta->Sumw2();
+        TH1F * h_rho          = new TH1F("h_rho", "Rho variable", 15, 0., 15.);						h_rho->Sumw2();
+        TH1F * h_nvtx         = new TH1F("h_nvtx", "Number of Good vertex", 20, 0., 20.);				h_nvtx->Sumw2();
+        TH1F * h_phiZMet      = new TH1F("h_phiZMet", "Delta Phi Met Z", 30, 0., 3.142);				h_phiZMet->Sumw2();
+        TH1F * h_MetParallel  = new TH1F("h_MetParallel", "Met Z parallel", 100, 0., 300);				h_MetParallel->Sumw2();
+        TH1F * h_MetTransvers = new TH1F("h_MetTransvers", "Met Z transvers", 100, -150., 150);				h_MetTransvers->Sumw2();
+
+        TH1F * h_mZZt         = new TH1F("h_mZZt", "Di-Boson Mass", 100, 150., 800.);					h_mZZt->Sumw2();
+// Pt Range
+        TH1F * h_Pt50_mZ       = new TH1F("h_Pt50_mZ", "Pt<50, mZ mass", 20, 75., 110.);				h_Pt50_mZ->Sumw2();
+        TH1F * h_Pt100_mZ      = new TH1F("h_Pt100_mZ", "Pt<100, mZ mass", 20, 75., 110.);				h_Pt100_mZ->Sumw2();
+        TH1F * h_Pt150_mZ      = new TH1F("h_Pt150_mZ", "Pt<150, mZ mass", 20, 75., 110.);				h_Pt150_mZ->Sumw2();
+        TH1F * h_PtMax_mZ      = new TH1F("h_PtMax_mZ", "Pt Max, mZ mass", 20, 75., 110.);				h_PtMax_mZ->Sumw2();
 // HISTO 
 	//MET_vs_VTX
         TH1F * h_in_MET1vtx    = new TH1F("h_in_MET1vtx", "MET distr. with 1 vertex", 40, 0., 60.);		h_in_MET1vtx->Sumw2();
@@ -127,7 +168,7 @@ void ZZ_Finalize::Loop(){
         TH1F * h_in_METx18rho  = new TH1F("h_in_METx18rho", "MET_x distr. with rho 16+", 40, -40., 40.);	h_in_METx18rho->Sumw2();
         TH1F * h_in_METy18rho  = new TH1F("h_in_METy18rho", "MET_y distr. with rho 16+", 40, -40., 40.);        h_in_METy18rho->Sumw2();
 
-        TH1F * h_RMS_vtx       = new TH1F("h_RMS_vtx", "MET on x RMS vs N vertex", 20, 0., 20.);
+        TH1F * h_RMS_vtx       = new TH1F("h_RMS_vtx", "MET on x RMS vs N vertex", 20, 0., 20.);		h_RMS_vtx->Sumw2();
 	TGraph * g_RMS_vtx     = new TGraph(5); g_RMS_vtx->SetTitle("g_RMS_vtx");
 	
         TH1F * h_Nevent   = new TH1F("h_Nevent", "Event after cuts", 13, 0., 13.);
@@ -149,6 +190,7 @@ void ZZ_Finalize::Loop(){
 	float Eff_Preselection = 0.;
 	float Eff_Two_leptons = 0.;
 	float Eff_Pt = 0.;
+	float Eff_Eta = 0.;
 	float Eff_Z_Pt = 0.;
 	float Eff_Jet_Veto = 0.;
 	float Eff_MET = 0.;
@@ -169,59 +211,74 @@ void ZZ_Finalize::Loop(){
 
 	Long64_t nbytes = 0, nb = 0;
 
-	Bool_t ee = 0.;
-	Bool_t mumu = 0.;	
-	Bool_t isl1EB = 0.;
-	Bool_t isl2EB = 0.;
-	Bool_t isThereBJet = 0.;
-	Bool_t veto_Jet = 0.;
+	Bool_t ee = false;
+	Bool_t mumu = false;	
+	Bool_t isl1EB = false;
+	Bool_t isl2EB = false;
+	Bool_t isThereBJet = false;
+	Bool_t veto_Jet = false;
 
 	Float_t l1_CRI = 0.;
 	Float_t l2_CRI = 0.;
 	Float_t jet_eta = 0.;
 	Float_t jet_pt = 0.;
 
-	Float_t finWeight = 0.;
+        //Float_t vtxweight[20]={1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.};
+	Float_t vtxweight[20]={1.,0.634276,0.678203,0.7131,0.743639,0.773336,0.810534,0.856799,0.916266,0.991299,1.08157,1.21162,1.34877,1.49695,1.67696,1.9008,2.1098,2.397,2.80421,3.42399};
 
 	// event loop
 	for (Long64_t jentry=0; jentry<nentries;jentry++) {
-		if (jentry % 50000 == 0) cout << jentry << endl;
+		if( (jentry) % 1000000 ==0 )  cout << "Event: " << jentry << "/" << nentries << endl;
 		Long64_t ientry = LoadTree(jentry); //Set curren entry (-2 if it doesn't exist)
 		if (ientry < 0) break;
 		nb = fChain->GetEntry(jentry);   nbytes += nb;
 
-		// reweighting for pile up
+		// reweighting for pile up & Nvetx
 		finWeight = 1.;
-		if ( isData_ == 0 ) finWeight = Scaling_*weight;
+		if ( isData_ == 0 ){
+		    finWeight = Scaling_*weight;
+		  if ( nvtx < 20 ) {  finWeight = Scaling_ * weight * vtxweight[nvtx]; }
+		  if ( nvtx >= 20 ){  finWeight = Scaling_ * weight * vtxweight[19];   }
+		}
 
 		Eff_Preselection++;
 		h_Nevent->SetBinContent(1,(h_Nevent->GetBinContent(1)+1.)*finWeight);
 
                 //---------- Define Variables ----------           
                 TLorentzVector lept1, lept2, lepts;
-		TLorentzVector Jet_loop;
                 lept1.SetPxPyPzE(l1_px,l1_py,l1_pz,l1_en);  
                 lept2.SetPxPyPzE(l2_px,l2_py,l2_pz,l2_en);
                 lepts = lept1 + lept2;
 		float met1_px = met1_pt*cos(met1_phi);
 		float met1_py = met1_pt*sin(met1_phi);
-		
+		Nvtx = nvtx;// For the TTree for nvtx reweighting
+		double PhiZMet = delta_phi(met1_phi,lepts.Phi());
+		double MetParallel = met1_pt*sin(PhiZMet);
+		double MetTransv = met1_pt*cos(PhiZMet);
+		double mZZt = sqrt( pow( sqrt(pow(lepts.M(),2)+pow(lepts.Pt(),2)) + sqrt(pow(lepts.M(),2)+pow(met1_pt,2)) ,2) - pow(sqrt( pow(lepts.Px()+met1_px,2)+pow(lepts.Py()+met1_py,2) ),2) );
+
 		//---------- Basic Preselection ----------		
 		// check 2 leptons same flavor
-		ee = 0;
-		mumu = 0;
-		if (abs(l1_id) == 11 && abs(l2_id) == 11) ee = 1;
-		else if (abs(l1_id) == 13 && abs(l2_id) == 13) mumu = 1;
-		//else cout<<"Not ee or mumu but something else. Strange!"<<endl; //@
-		// check two leptons opposite charge
-		if ((ee == 0 && mumu == 0)) continue;
+		ee = false;
+		mumu = false;
+		if	(abs(l1_id) == 11 && abs(l2_id) == 11) ee = true;
+		if	(abs(l1_id) == 13 && abs(l2_id) == 13) mumu = true;
+		// check two leptons 
+		if (( !ee && !mumu ) || (ee && mumu ) ) continue;
 		Eff_Two_leptons++;
 		h_Nevent->SetBinContent(2,(h_Nevent->GetBinContent(2)+1.)*finWeight);
 		// pt minimum for each lepton
-		//if( (lept1.Pt()==0 || lept2.Pt()==0) && (lepts.M()<20. || lepts.M()>110. )  ) cout<<"Very Very strange!"<<endl; //Why data out of the mZ window have Pt=0??
 		if( lept1.Pt() < 20 || lept2.Pt() < 20 ) continue;
 		Eff_Pt++;
 		h_Nevent->SetBinContent(3,(h_Nevent->GetBinContent(3)+1.)*finWeight);
+
+		// eta fiducial cut
+		if(mumu){	if(fabs(lept1.Eta()) > 2.4 || fabs(lept2.Eta()) > 2.4) continue;}
+		if(ee){		if( (fabs(lept1.Eta()) >= 2.5 || (1.4442 <= fabs(lept1.Eta()) && fabs(lept1.Eta()) <= 1.566)) ||
+				    (fabs(lept2.Eta()) >= 2.5 || (1.4442 <= fabs(lept2.Eta()) && fabs(lept2.Eta()) <= 1.566))) continue;}
+                Eff_Eta++;
+
+		Tree_NVertex->Fill(); //Reweighting N vertex
 
 		//---------- Beginning Histo ----------
                 if (ee){
@@ -246,6 +303,20 @@ void ZZ_Finalize::Loop(){
                         hmumu_in_rho->Fill(rho, finWeight);
                         hmumu_in_nvtx->Fill(nvtx, finWeight);
                 }
+                h_in_llMass->Fill(lepts.M(), finWeight);
+                h_in_llPt->Fill(lepts.Pt(), finWeight);
+                h_in_l1Eta->Fill(lept1.Eta(), finWeight);
+                h_in_l2Eta->Fill(lept2.Eta(), finWeight);
+                h_in_l1Pt->Fill(lept1.Pt(), finWeight);
+                h_in_l2Pt->Fill(lept2.Pt(), finWeight);
+                h_in_MET1Pt->Fill(met1_pt, finWeight);
+                h_in_rho->Fill(rho, finWeight);
+                h_in_nvtx->Fill(nvtx, finWeight);
+		h_in_phiZMet->Fill(PhiZMet, finWeight);
+		h_in_MetParallel->Fill(MetParallel, finWeight);
+		h_in_MetTransvers->Fill(MetTransv, finWeight);
+
+
                         if( nvtx==1 ){  h_in_MET1vtx->Fill(met1_pt, finWeight);
                         		h_in_METx1vtx->Fill(met1_px, finWeight);
                         		h_in_METy1vtx->Fill(met1_py, finWeight); }
@@ -255,10 +326,10 @@ void ZZ_Finalize::Loop(){
                         if( nvtx==8 ){  h_in_MET8vtx->Fill(met1_pt, finWeight);
                                         h_in_METx8vtx->Fill(met1_px, finWeight);
                                         h_in_METy8vtx->Fill(met1_py, finWeight); }
-                        if( nvtx==12 ){  h_in_MET12vtx->Fill(met1_pt, finWeight);
+                        if( nvtx==12 ){ h_in_MET12vtx->Fill(met1_pt, finWeight);
                                         h_in_METx12vtx->Fill(met1_px, finWeight);
                                         h_in_METy12vtx->Fill(met1_py, finWeight); }
-                        if( nvtx==18 ){  h_in_MET18vtx->Fill(met1_pt, finWeight);
+                        if( nvtx==18 ){ h_in_MET18vtx->Fill(met1_pt, finWeight);
                                         h_in_METx18vtx->Fill(met1_px, finWeight);
                                         h_in_METy18vtx->Fill(met1_py, finWeight); }
 
@@ -281,14 +352,14 @@ void ZZ_Finalize::Loop(){
                         else if( rho > 16. ){ h_in_METx18rho->Fill(met1_px, finWeight);
                                               h_in_METy18rho->Fill(met1_py, finWeight); }
 		//---------- compute the kinematic ----
-		isl1EB = 0; //I'd like to put them in lept class
-		isl2EB = 0;
-		if (fabs( lept1.Eta()<20. ) < 1.4442){ 
-			isl1EB = 1;
+		isl1EB = false; //I'd like to put them in lept class
+		isl2EB = false;
+		if (fabs( lept1.Eta() ) < 1.4442){ 
+			isl1EB = true;
 			//if(abs(l1_id) == 11) l1_iso1 -= 1.;
 		}
-		if (fabs( lept2.Eta()<20. ) < 1.4442){ 
-			isl2EB = 1;
+		if (fabs( lept2.Eta() ) < 1.4442){ 
+			isl2EB = true;
 			//if(abs(l2_id) == 11) l2_iso1 -= 1.;
 		}
 		l1_CRI = (l1_iso1 + l1_iso2 + l1_iso3 - rho * 0.3 * 0.3)/lept1.Pt(); 
@@ -301,7 +372,8 @@ void ZZ_Finalize::Loop(){
 		h_Nevent->SetBinContent(4,(h_Nevent->GetBinContent(4)+1.)*finWeight);
 
                 // Jet-Veto
-                veto_Jet = 0;
+                veto_Jet = false;
+		TLorentzVector Jet_loop;
                 for (int i = 0; i < jn; i++) {
                         Jet_loop.SetPxPyPzE(jn_px[i],jn_py[i],jn_pz[i],jn_en[i]);
                         if( Jet_loop.Pt() > 30. && fabs(Jet_loop.Eta()) < 5. )  veto_Jet = true;
@@ -311,7 +383,7 @@ void ZZ_Finalize::Loop(){
 		h_Nevent->SetBinContent(5,(h_Nevent->GetBinContent(5)+1.)*finWeight);
 
 		// MET Cut
-		if( met1_pt < 50. ) continue; // a 60 meno divario Data-MC
+		if( met1_pt < 60. ) continue; // a 60 meno divario Data-MC
 		Eff_MET++;
 		h_Nevent->SetBinContent(6,(h_Nevent->GetBinContent(6)+1.)*finWeight);
 
@@ -319,14 +391,7 @@ void ZZ_Finalize::Loop(){
 		if( (met1_pt/lepts.Pt()) < 0.4 || (met1_pt/lepts.Pt()) > 1.8 ) continue; // Balance between the Pt of Z candidate and MET
 		Eff_Balance++;
 		h_Nevent->SetBinContent(7,(h_Nevent->GetBinContent(7)+1.)*finWeight);
-
-		// eta fiducial cut
-		/*if (mumu && (fabs(l1_eta) > 2.4 || fabs(l2_eta) > 2.4)) continue;
-		else if (ee){
-			if ((fabs(l1_eta) >= 2.5 || (1.4442 <= fabs(l1_eta) && fabs(l1_eta) <= 1.566)) ||
-			   (fabs(l2_eta) >= 2.5 || (1.4442 <= fabs(l2_eta) && fabs(l2_eta) <= 1.566))) continue;
-		}
-		*/
+		
 		// check the pt resolution for the muons
 		//if (mumu && (l1_ptErr/l1_pt > 0.1 || l2_ptErr/l2_pt > 0.1)) continue
 
@@ -344,21 +409,21 @@ void ZZ_Finalize::Loop(){
                 }
 		Eff_Jet_Phi++;
 		h_Nevent->SetBinContent(8,(h_Nevent->GetBinContent(8)+1.)*finWeight);
-		if( isJet_hard && (fabs(delta_phi(Phi_hardJet,met1_phi)) < 0.349) ) continue; //20degrees
+		if( isJet_hard && (fabs(delta_phi(Phi_hardJet,met1_phi)) < 0.349) ) continue; //20 degrees
 
                 // Delta Phi Z
-		if( delta_phi(met1_phi,lepts.Phi()) < 1.0472 ) continue; //60degrees
+		if( PhiZMet < 1.0472 ) continue; //60 degrees
 		Eff_Z_Phi++;
 		h_Nevent->SetBinContent(9,(h_Nevent->GetBinContent(9)+1.)*finWeight);
 
 		// B-tagging
-		isThereBJet = 0;
+		isThereBJet = false;
 		jet_eta = 0.; jet_pt = 0.;
 		for (int i = 0; i < jn; i++) {
                         Jet_loop.SetPxPyPzE(jn_px[i],jn_py[i],jn_pz[i],jn_en[i]);
-			if(fabs(Jet_loop.Eta()) < 2.4 && Jet_loop.Pt() > 30. && jn_btag1[i] >= 2) {
-				isThereBJet = 1;
-				i = jn;
+			if( Jet_loop.Pt() > 10. && jn_btag1[i] >= 1.1) {
+				isThereBJet = true;
+				i = jn; //close for at 1st Bjet found
 			}
 		}
 		if (isThereBJet) continue;
@@ -374,16 +439,31 @@ void ZZ_Finalize::Loop(){
 		h_Nevent->SetBinContent(11,(h_Nevent->GetBinContent(11)+1.)*finWeight);
 		
 		// check the isolation of the leptons
-		if (mumu && (l1_CRI > 0.15 || l2_CRI > 0.15)) continue;
-		else if (ee && (l1_CRI > 0.15 || l2_CRI > 0.15)) continue;
+		if	(mumu && !ee ){	if( l1_CRI > 0.15 || l2_CRI > 0.15) continue;}
+		else if (ee && !mumu ){	if( l1_CRI > 0.15 || l2_CRI > 0.15) continue;}
+		else	cout<<"That's impossible!"<<endl;
 		Eff_ISO++;
 		h_Nevent->SetBinContent(12,(h_Nevent->GetBinContent(12)+1.)*finWeight);
 
 		// Z mass window
-		if ( lepts.M() < 80 || lepts.M() > 100 ) continue; //
+		if ( lepts.M() < 80 || lepts.M() > 100 ) continue;
 		Eff_Z_Mass++;
 		h_Nevent->SetBinContent(13,(h_Nevent->GetBinContent(13)+1.)*finWeight);
 
+
+		// ZPt ranges
+		if( lepts.Pt() <= 50 ){
+		h_Pt50_mZ->Fill(lepts.M(), finWeight);
+		}
+                else if( lepts.Pt() > 50 && lepts.Pt() <= 100){
+		h_Pt100_mZ->Fill(lepts.M(), finWeight);
+                }
+                else if( lepts.Pt() > 100 && lepts.Pt() <= 150){
+		h_Pt150_mZ->Fill(lepts.M(), finWeight);
+                }
+		else{
+		h_PtMax_mZ->Fill(lepts.M(), finWeight);
+		}
 		// Fill histos
 		if (ee){
 			hee_llMass->Fill(lepts.M(), finWeight);
@@ -395,6 +475,7 @@ void ZZ_Finalize::Loop(){
 			hee_MET1Pt->Fill(met1_pt, finWeight);
 			hee_rho->Fill(rho, finWeight);
                         hee_nvtx->Fill(nvtx, finWeight);
+                        hee_mZZt->Fill(mZZt, finWeight);
 			Eff_FinalEE++;
 		}
 		else if (mumu){
@@ -407,11 +488,27 @@ void ZZ_Finalize::Loop(){
 			hmumu_MET1Pt->Fill(met1_pt, finWeight);
 			hmumu_rho->Fill(rho, finWeight);
 			hmumu_nvtx->Fill(nvtx, finWeight);
+                        hmumu_mZZt->Fill(mZZt, finWeight);
 			Eff_FinalMuMu++;
-		} 
+		}
+                h_llMass->Fill(lepts.M(), finWeight);
+                h_llPt->Fill(lepts.Pt(), finWeight);
+                h_l1Eta->Fill(lept1.Eta(), finWeight);
+                h_l2Eta->Fill(lept2.Eta(), finWeight);
+                h_l1Pt->Fill(lept1.Pt(), finWeight);
+                h_l2Pt->Fill(lept2.Pt(), finWeight);
+                h_MET1Pt->Fill(met1_pt, finWeight);
+                h_rho->Fill(rho, finWeight);
+                h_nvtx->Fill(nvtx, finWeight);
+                h_mZZt->Fill(mZZt, finWeight);
+		h_nvtx->Fill(nvtx, finWeight);
+		h_phiZMet->Fill(PhiZMet, finWeight);
+		h_MetParallel->Fill(MetParallel, finWeight);
+		h_MetTransvers->Fill(MetTransv, finWeight);
 	}// for entries
 
 //-------------RSM from MET vs vtx
+if( (h_in_METx18vtx->GetEntries() > 0.) && (h_in_METx12vtx->GetEntries() > 0.) ){
 	h_in_METx1vtx->Fit("gaus");	TF1 *fit_x1 = h_in_METx1vtx->GetFunction("gaus");	Double_t RMS_x1 = fit_x1->GetParameter("Sigma");
 	h_in_METx4vtx->Fit("gaus");	TF1 *fit_x4 = h_in_METx4vtx->GetFunction("gaus");	Double_t RMS_x4 = fit_x4->GetParameter("Sigma");
 	h_in_METx8vtx->Fit("gaus");	TF1 *fit_x8 = h_in_METx8vtx->GetFunction("gaus");	Double_t RMS_x8 = fit_x8->GetParameter("Sigma");
@@ -432,16 +529,20 @@ void ZZ_Finalize::Loop(){
 	h_RMS_vtx->Fit("myfit");
 	g_RMS_vtx->Fit("myfit");
 	g_RMS_vtx->Write();
+}
 	dir->GetList()->Write();
+	Tree_NVertex->Write();
 	file->Close();
 	dir->GetList()->Delete();
+
 
 //-------------EFFICIENCY
 	cout << endl;	
 	cout << "Preselection: " << Eff_Preselection << endl;
 	cout << "Two_leptons: " << Eff_Two_leptons << "  Eff_tot: " << Eff_Two_leptons/Eff_Preselection << "  Eff_parz: " << Eff_Two_leptons/Eff_Preselection << endl;
 	cout << "Pt: " << Eff_Pt <<  "  Eff_tot: " << Eff_Pt/Eff_Preselection << "  Eff_parz: " << Eff_Pt/Eff_Two_leptons << endl;
-	cout << "Z_Pt: " << Eff_Z_Pt <<  "  Eff_tot: " << Eff_Z_Pt/Eff_Preselection << "  Eff_parz: " << Eff_Z_Pt/Eff_Pt << endl;
+	cout << "Eta: " << Eff_Eta <<  "  Eff_tot: " << Eff_Eta/Eff_Preselection << "  Eff_parz: " << Eff_Eta/Eff_Pt << endl;
+	cout << "Z_Pt: " << Eff_Z_Pt <<  "  Eff_tot: " << Eff_Z_Pt/Eff_Preselection << "  Eff_parz: " << Eff_Z_Pt/Eff_Eta << endl;
         cout << "Jet_Veto: " << Eff_Jet_Veto <<  "  Eff_tot: " << Eff_Jet_Veto/Eff_Preselection << "  Eff_parz: " << Eff_Jet_Veto/Eff_Z_Pt << endl;
         cout << "MET: " << Eff_MET <<  "  Eff_tot: " << Eff_MET/Eff_Preselection << "  Eff_parz: " << Eff_MET/Eff_Jet_Veto << endl;
         cout << "Balance: " << Eff_Balance <<  "  Eff_tot: " << Eff_Balance/Eff_Preselection << "  Eff_parz: " << Eff_Balance/Eff_MET << endl;
@@ -452,11 +553,11 @@ void ZZ_Finalize::Loop(){
         cout << "ISO: " << Eff_ISO <<  "  Eff_tot: " << Eff_ISO/Eff_Preselection << "  Eff_parz: " << Eff_ISO/Eff_Lept_Veto << endl;
         cout << "Z_Mass: " << Eff_Z_Mass <<  "  Eff_tot: " << Eff_Z_Mass/Eff_Preselection << "  Eff_parz: " << Eff_Z_Mass/Eff_ISO << endl;
 	cout << endl;
-	cout << "FinalEE = " << Eff_FinalEE << "  FinalMuMu = " << Eff_FinalMuMu << endl;
+	cout << "Num EE = " << Eff_FinalEE << "  Num MuMu = " << Eff_FinalMuMu << endl;
 }
 
 // Delta Phi
 inline double delta_phi(double phi1, double phi2) {
   double dphi = TMath::Abs(phi1 - phi2);
-  return (dphi <= TMath::Pi())? dphi : TMath::TwoPi() - dphi;
+  return ( dphi <= TMath::Pi()  ? dphi : TMath::TwoPi() - dphi );
 }
