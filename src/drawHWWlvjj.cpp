@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
   //--------- Monte Carlo
   TFile* mcBkg_DY = TFile::Open("Output/MC/histosfiles_DYJetsToLL.root");
   db->add_mcFile(mcBkg_DY, "DY", " DY ", 39);
-  /*TFile* mcBkg_WJets = TFile::Open("Output/MC/histosfiles_WJetsToLNu.root");
+ /* TFile* mcBkg_WJets = TFile::Open("Output/MC/histosfiles_WJetsToLNu.root");
   db->add_mcFile(mcBkg_WJets, "WJets", "W + Jets", 38);
   TFile* mcBkg_TT = TFile::Open("Output/MC/histosfiles_TTJets.root");
   db->add_mcFile(mcBkg_TT, "tt", " tt ", 30);
@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
   //db->set_noStack( false);//(bool)true );
   //db->set_shapeNormalization();
 
-              // MET with different VTX
+  /*            // MET with different VTX
   std::vector< HistoAndName > MET_in_vtx;
   HistoAndName h_in_MET1vtx;
   h_in_MET1vtx.histoName = "h_in_MET1vtx";
@@ -128,11 +128,73 @@ int main(int argc, char* argv[]) {
   h_in_METy14rho.legendName = "12 < Rho < 14";
   METy_rho.push_back( h_in_METy14rho );
   db->compareDifferentHistos( METy_rho, "METy_rho", "MET_y with different Rho [GeV/c]", "");
+*/
+  // Charge MET
+  std::vector< HistoAndName > METCharge_vtx;
+  HistoAndName h_in_METCharge1vtx;
+  h_in_METCharge1vtx.histoName = "h_in_METCharge1vtx";
+  h_in_METCharge1vtx.legendName = "1 vertex ";
+  METCharge_vtx.push_back( h_in_METCharge1vtx );
+  HistoAndName h_in_METCharge8vtx;
+  h_in_METCharge8vtx.histoName = "h_in_METCharge8vtx";
+  h_in_METCharge8vtx.legendName = "8 vertices";
+  METCharge_vtx.push_back( h_in_METCharge8vtx );
+  HistoAndName h_in_METCharge18vtx;
+  h_in_METCharge18vtx.histoName = "h_in_METCharge18vtx";
+  h_in_METCharge18vtx.legendName = "18 vertices";
+  METCharge_vtx.push_back( h_in_METCharge18vtx );
+  db->compareDifferentHistos( METCharge_vtx, "METCharge_vtx", "MET Charge with different Vtx [GeV]", "");
+/*
+
+  std::vector< HistoAndName > Iso1_vtx;
+  HistoAndName h_in_Iso1_1vx;
+  h_in_Iso1_1vx.histoName = "h_in_Iso1_1vx";
+  h_in_Iso1_1vx.legendName = "1 vertex";
+  Iso1_vtx.push_back( h_in_Iso1_1vx );
+  HistoAndName h_in_Iso1_8vx;
+  h_in_Iso1_8vx.histoName = "h_in_Iso1_8vx";
+  h_in_Iso1_8vx.legendName = "8 vertices";
+  Iso1_vtx.push_back( h_in_Iso1_8vx );
+  HistoAndName h_in_Iso1_12vx;
+  h_in_Iso1_12vx.histoName = "h_in_Iso1_12vx";
+  h_in_Iso1_12vx.legendName = "12 vertices";
+  Iso1_vtx.push_back( h_in_Iso1_12vx );
+  db->compareDifferentHistos( Iso1_vtx, "Iso1_vtx", "ECAL Iso vs vtx", "");
+
+  std::vector< HistoAndName > Iso2_vtx;
+  HistoAndName h_in_Iso2_1vx;
+  h_in_Iso2_1vx.histoName = "h_in_Iso2_1vx";
+  h_in_Iso2_1vx.legendName = "1 vertex";
+  Iso2_vtx.push_back( h_in_Iso2_1vx );
+  HistoAndName h_in_Iso2_8vx;
+  h_in_Iso2_8vx.histoName = "h_in_Iso2_8vx";
+  h_in_Iso2_8vx.legendName = "8 vertices";
+  Iso2_vtx.push_back( h_in_Iso2_8vx );
+  HistoAndName h_in_Iso2_12vx;
+  h_in_Iso2_12vx.histoName = "h_in_Iso2_12vx";
+  h_in_Iso2_12vx.legendName = "12 vertices";
+  Iso2_vtx.push_back( h_in_Iso2_12vx );
+  db->compareDifferentHistos( Iso2_vtx, "Iso2_vtx", "HCAL Iso vs vtx", "");
+
+  std::vector< HistoAndName > Iso3_vtx;
+  HistoAndName h_in_Iso3_1vx;
+  h_in_Iso3_1vx.histoName = "h_in_Iso3_1vx";
+  h_in_Iso3_1vx.legendName = "1 vertex";
+  Iso3_vtx.push_back( h_in_Iso3_1vx );
+  HistoAndName h_in_Iso3_8vx;
+  h_in_Iso3_8vx.histoName = "h_in_Iso3_8vx";
+  h_in_Iso3_8vx.legendName = "8 vertices";
+  Iso3_vtx.push_back( h_in_Iso3_8vx );
+  HistoAndName h_in_Iso3_12vx;
+  h_in_Iso3_12vx.histoName = "h_in_Iso3_12vx";
+  h_in_Iso3_12vx.legendName = "12 vertices";
+  Iso3_vtx.push_back( h_in_Iso3_12vx );
+  db->compareDifferentHistos( Iso3_vtx, "Iso3_vtx", "Tracker Iso vs vtx", "");
 
   db->set_mcMarkers("false");
   db->set_markerSize(1);
   db->drawHisto( "h_RMS_vtx", "N vertex", "", "RMS on MET_x", true);
-
+*/
   delete db;
  
   db = 0;
