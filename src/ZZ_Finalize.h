@@ -15,6 +15,7 @@
 #include <TH1F.h>
 #include <TStopwatch.h>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string.h>
 #include <TLorentzVector.h>
@@ -36,8 +37,9 @@ public :
 	float CrossSect_;
 
 	Float_t Scaling_;
+	Float_t Norm_;
 
-	char title[100];
+	Float_t lept1Pt_, lept2Pt_, EtaMu_, EtaEle_, ZPt_, Met_, BalancMin_, BalancMax_, PhiZ_, PhiJet_, Iso1, Iso2, MZmin_, MZmax_;
 
 	// Declaration of leaf types
 	#include "Include/higgsVar_Nov.h"
@@ -49,6 +51,7 @@ public :
 	virtual Int_t    Cut(Long64_t entry);
 	virtual Int_t    GetEntry(Long64_t entry);
 	virtual void     SetInput(TString dataset);
+	virtual void     SetSelection(TString Selection);
 	virtual Long64_t LoadTree(Long64_t entry);
 	virtual void     Init(TTree *tree);
 	virtual void	 SetOutput();
@@ -90,18 +93,18 @@ void ZZ_Finalize::SetInput(TString dataset){
 		//if( Dataset_.Contains("Ele") ) leptonType_ = 11;
 		//if( Dataset_.Contains("Mu") ) leptonType_ = 13.;
 	}
-	else if( Dataset_.Contains("DYJetsToLL") ) CrossSect_ = 3048.;		// DY
-	else if( Dataset_.Contains("WJetsToLNu") ) CrossSect_ = 31314.;		// WJets
-	else if( Dataset_.Contains("TTJets") ) CrossSect_ = 165.;		// TT
-	else if( Dataset_.Contains("SingleT_tW") ) CrossSect_ = 7.87;		// T_tw
-	else if( Dataset_.Contains("SingleTbar_tW") ) CrossSect_ = 7.87;	// Tbar_tw
-	else if( Dataset_.Contains("SingleT_s") ) CrossSect_ = 3.19;		// T_s
-	else if( Dataset_.Contains("SingleTbar_s") ) CrossSect_ = 1.44;	// Tbar_s
-	else if( Dataset_.Contains("SingleT_t") ) CrossSect_ = 41.92;		// T_t
-	else if( Dataset_.Contains("SingleTbar_t") ) CrossSect_ = 22.6;	// Tbar_t
-	else if( Dataset_.Contains("WZ") ) CrossSect_ = 18.2;			// WZ
-	else if( Dataset_.Contains("WW") ) CrossSect_ = 43.;			// WW
-	else if( Dataset_.Contains("ZZ") ) CrossSect_ = 5.9;			// ZZ
+	else if( Dataset_.Contains("DYJetsToLL") ){ CrossSect_ = 3048.; Norm_=1.113;}		// DY
+	else if( Dataset_.Contains("WJetsToLNu") ){ CrossSect_ = 31314.; Norm_=1.23345;}	// WJets
+	else if( Dataset_.Contains("TTJets") ){ CrossSect_ = 165.; Norm_=1.1175;}		// TT
+	else if( Dataset_.Contains("SingleT_tW") ){ CrossSect_ = 7.87; Norm_=1.1169;}		// T_tw
+	else if( Dataset_.Contains("SingleTbar_tW") ){ CrossSect_ = 7.87; Norm_=.10954;}	// Tbar_tw
+	else if( Dataset_.Contains("SingleT_s") ){ CrossSect_ = 3.19; Norm_=0.9359;}		// T_s
+	else if( Dataset_.Contains("SingleTbar_s") ){ CrossSect_ = 1.44; Norm_=1.5502;}		// Tbar_s
+	else if( Dataset_.Contains("SingleT_t") ){ CrossSect_ = 41.92; Norm_=1.1418;}		// T_t
+	else if( Dataset_.Contains("SingleTbar_t") ){ CrossSect_ = 22.6; Norm_=1.1055;}		// Tbar_t
+	else if( Dataset_.Contains("WZ") ){ CrossSect_ = 18.2; Norm_=1.11042;}			// WZ
+	else if( Dataset_.Contains("WW") ){ CrossSect_ = 43.; Norm_=1.11995;}			// WW
+	else if( Dataset_.Contains("ZZ") ){ CrossSect_ = 5.9; Norm_=0.9952;}			// ZZ
 	else cout<<"Dataset unknow... Try again."<<endl;
 
 	cout<<"Dataset: "<<Dataset_<<" Cross Section: "<<CrossSect_<<" IsData: "<<isData_<<endl;
@@ -137,7 +140,7 @@ void ZZ_Finalize::SetInput(TString dataset){
 
 	if( isData_==1 ){ CrossSect_=1.; nGen=1.; }
 
-        cout  <<"MC luminosities (1 for Data): "<<nGen/CrossSect_<<endl;
+        cout  <<"Num. Generated (1 for Data): "<<nGen<<endl;
         cout  <<"SCALING (Lumin. for Data ): "<<CrossSect_/nGen<<endl;
 
         Scaling_ = CrossSect_/nGen;
@@ -229,4 +232,5 @@ Int_t ZZ_Finalize::Cut(Long64_t entry){
 	std::cout << entry << endl;
 	return 1;
 }
+
 #endif // #ifdef ZZ_Finalize_cxx

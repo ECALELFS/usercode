@@ -58,10 +58,6 @@ void ZZ_Finalize::Loop(){
 	exit(1);}
 
 	//#include "Include/higgsDeclaration.h"
-	TTree * Tree_NVertex = new TTree("Tree_NVertex","Tree for re-weighting N verteces");
-	Float_t Nvtx, finWeight = 1.;
-	Tree_NVertex->Branch("Nvtx", &Nvtx, "Nvtx/I");
-	Tree_NVertex->Branch("finWeight", &finWeight, "finWeight/F");
 
 	TH1F * h_Study		= new TH1F("h_Study", "Study", 30, 0., 3.);		                                h_Study->Sumw2();
 
@@ -160,6 +156,9 @@ void ZZ_Finalize::Loop(){
         TH1F * h_in_phiZMet   = new TH1F("h_in_phiZMet", "Delta Phi Met Z", 30, 0., 3.142);				h_in_phiZMet->Sumw2();
         TH1F * h_in_MetParallel  = new TH1F("h_in_MetParallel", "Met Z parallel", 100, -150., 150);			h_in_MetParallel->Sumw2();
         TH1F * h_in_MetTransvers = new TH1F("h_in_MetTransvers", "Met Z transvers", 100, 0., 300);			h_in_MetTransvers->Sumw2();
+        TH1F * h_in_MetRed_IND = new TH1F("h_in_MetRed_IND", "Met IND", 50, 0., 200.);					h_in_MetRed_IND->Sumw2();
+        TH1F * h_in_MetRed_D0 = new TH1F("h_in_MetRed_D0", "Met D0", 50, 0., 200.);					h_in_MetRed_D0->Sumw2();
+        TH1F * h_in_MetRed_MIN = new TH1F("h_in_MetRed_MIN", "Met MIN", 50, 0., 200.);					h_in_MetRed_MIN->Sumw2();
 
         TH1F * h_llMass       = new TH1F("h_llMass", "Dilepton Invariant mass", 20, 75., 105.);				h_llMass->Sumw2();
         TH1F * h_llPt         = new TH1F("h_llPt", "Transvers momentum of lepton pair", 30, 25., 325.);			h_llPt->Sumw2();
@@ -192,7 +191,6 @@ void ZZ_Finalize::Loop(){
         TH1F * h_Pt100_mZ      = new TH1F("h_Pt100_mZ", "Pt<100, mZ mass", 20, 75., 110.);				h_Pt100_mZ->Sumw2();
         TH1F * h_Pt150_mZ      = new TH1F("h_Pt150_mZ", "Pt<150, mZ mass", 20, 75., 110.);				h_Pt150_mZ->Sumw2();
         TH1F * h_PtMax_mZ      = new TH1F("h_PtMax_mZ", "Pt Max, mZ mass", 20, 75., 110.);				h_PtMax_mZ->Sumw2();
-// HISTO 
 	//ISO_vs_VTX
         TH1F * h_in_Iso1_1vx  = new TH1F("h_in_Iso1_1vx", "Tracker Iso, 1 lept, 1 vtx", 20, 0., 5.);                      h_in_Iso1_1vx->Sumw2();
         TH1F * h_in_Iso2_1vx  = new TH1F("h_in_Iso2_1vx", "ECAL Iso, 1 lept, 1 vtx", 20, 0., 1.5);                        h_in_Iso2_1vx->Sumw2();
@@ -245,26 +243,12 @@ void ZZ_Finalize::Loop(){
         //TH1F * h_in_METCharge12vtx    = new TH1F("h_in_METCharge12vtx", "MET Charge distr. with 12 vertex", 40, 0., 60.);          h_in_METCharge12vtx->Sumw2();
         //TH1F * h_in_METCharge18vtx    = new TH1F("h_in_METCharge18vtx", "MET Charge distr. with 18 vertex", 40, 0., 60.);          h_in_METCharge18vtx->Sumw2();
 
+        TH1F * NvtxnoW         = new TH1F("NvtxnoW", "Number of Good vertex", 20, 0., 20.);				NvtxnoW->Sumw2();
+        TH1F * NvtxyesW        = new TH1F("NvtxyesW", "Number of Good vertex", 20, 0., 20.);				NvtxyesW->Sumw2();
         TH1F * h_RMS_vtx       = new TH1F("h_RMS_vtx", "MET on x RMS vs N vertex", 20, 0., 20.);		h_RMS_vtx->Sumw2();
         TH1F * h_Iso_vtx       = new TH1F("h_Iso_vtx", "Iso vs N vertex", 20, 0., 20.);				h_Iso_vtx->Sumw2();
 	TGraph * g_RMS_vtx     = new TGraph(5); g_RMS_vtx->SetTitle("g_RMS_vtx");
 	
-        TH1F * h_Nevent   = new TH1F("h_Nevent", "Event after cuts", 13, 0., 13.);
-	TAxis * ProvaAxis=h_Nevent->GetXaxis();
-	ProvaAxis->SetBinLabel(1 , "Preselection");
-	ProvaAxis->SetBinLabel(2 , "Two leptons");
-	ProvaAxis->SetBinLabel(3 , "Pt Lept");
-	ProvaAxis->SetBinLabel(4 , "Pt Z");
-	ProvaAxis->SetBinLabel(5 , "Jet Veto");
-	ProvaAxis->SetBinLabel(6 , "MET");
-	ProvaAxis->SetBinLabel(7 , "Balance");
-	ProvaAxis->SetBinLabel(8 , "Jet Phi");
-	ProvaAxis->SetBinLabel(9 , "Z Phi");
-	ProvaAxis->SetBinLabel(10, "B-Veto");
-	ProvaAxis->SetBinLabel(11, "Lept Veto");
-	ProvaAxis->SetBinLabel(12, "ISO");
-	ProvaAxis->SetBinLabel(13, "Z Mass");
-
 	float Eff_Preselection = 0.;
 	float Eff_Two_leptons = 0.;
 	float Eff_Pt = 0.;
@@ -296,36 +280,86 @@ void ZZ_Finalize::Loop(){
 	Bool_t isThereBJet = false;
 	Bool_t veto_Jet = false;
 
-	Float_t l1_CRI = 0.;
-	Float_t l2_CRI = 0.;
 	Float_t jet_eta = 0.;
 	Float_t jet_pt = 0.;
 
         Float_t vtxweight[20]={1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.};
 	//Float_t vtxweight[20]={1.,0.634276,0.678203,0.7131,0.743639,0.773336,0.810534,0.856799,0.916266,0.991299,1.08157,1.21162,1.34877,1.49695,1.67696,1.9008,2.1098,2.397,2.80421,3.42399};
 
+	// TTREE
+	TTree * Tree_NVertex = new TTree("Tree_NVertex","Tree for re-weighting N verteces");
+	TTree * Tree_AllVariables = new TTree("Tree_AllVariables","All variables to plot");
+	TTree * Tree_Met_Eff = new TTree("Tree_Met_Eff","Study of Met Efficiency");
+
+	Float_t Nvtx, finWeight = 1.;
+	Float_t PhiZMet, met1_px, met1_py, MetParallel, MetTransv, met_Red_pt_IND, met_Red_pt_D0, met_Red_pt_MIN, met_WW, mZZt, l1_CRI, l2_CRI;
+
+	Tree_NVertex->Branch("Nvtx", &Nvtx, "Nvtx/I");
+	Tree_NVertex->Branch("finWeight", &finWeight, "finWeight/F");
+
+        Tree_AllVariables->Branch("Nvtx", &Nvtx, "Nvtx/I");
+        Tree_AllVariables->Branch("finWeight", &finWeight, "finWeight/F");
+        Tree_AllVariables->Branch("l1_px", &l1_px, "l1_px/F");
+        Tree_AllVariables->Branch("l1_py", &l1_py, "l1_py/F");
+        Tree_AllVariables->Branch("l1_pz", &l1_pz, "l1_pz/F");
+        Tree_AllVariables->Branch("l1_en", &l1_en, "l1_en/F");
+        Tree_AllVariables->Branch("l2_px", &l2_px, "l2_px/F");
+        Tree_AllVariables->Branch("l2_py", &l2_py, "l2_py/F");
+        Tree_AllVariables->Branch("l2_pz", &l2_pz, "l2_pz/F");
+        Tree_AllVariables->Branch("l2_en", &l2_en, "l2_en/F");
+        Tree_AllVariables->Branch("met1_pt", &met1_pt, "met1_pt/F");
+        Tree_AllVariables->Branch("met1_phi", &met1_phi, "met1_phi/F");
+        Tree_AllVariables->Branch("PhiZMet", &PhiZMet, "PhiZMet/F");
+        Tree_AllVariables->Branch("MetParallel", &MetParallel, "MetParallel/F");
+        Tree_AllVariables->Branch("MetTransv", &MetTransv, "MetTransv/F");
+        Tree_AllVariables->Branch("met_Red_px_IND", &met_Red_pt_IND, "met_Red_pt_IND/F");
+        Tree_AllVariables->Branch("met_Red_py_IND", &met_Red_pt_IND, "met_Red_pt_IND/F");
+        Tree_AllVariables->Branch("met_Red_pt_IND", &met_Red_pt_IND, "met_Red_pt_IND/F");
+        Tree_AllVariables->Branch("met_Red_px_D0", &met_Red_pt_D0, "met_Red_pt_D0/F");
+        Tree_AllVariables->Branch("met_Red_py_D0", &met_Red_pt_D0, "met_Red_pt_D0/F");
+        Tree_AllVariables->Branch("met_Red_pt_D0", &met_Red_pt_D0, "met_Red_pt_D0/F");
+        Tree_AllVariables->Branch("met_Red_px_MIN", &met_Red_pt_MIN, "met_Red_pt_MIN/F");
+        Tree_AllVariables->Branch("met_Red_py_MIN", &met_Red_pt_MIN, "met_Red_pt_MIN/F");
+        Tree_AllVariables->Branch("met_Red_pt_MIN", &met_Red_pt_MIN, "met_Red_pt_MIN/F");
+        Tree_AllVariables->Branch("met_WW", &met_WW, "met_WW/F");
+        Tree_AllVariables->Branch("mZZt", &mZZt, "mZZt/F");
+        Tree_AllVariables->Branch("l1_iso1", &l1_iso1, "l1_iso1/F");
+        Tree_AllVariables->Branch("l1_iso2", &l1_iso2, "l1_iso2/F");
+        Tree_AllVariables->Branch("l1_iso3", &l1_iso3, "l1_iso3/F");
+        Tree_AllVariables->Branch("l1_CRI", &l1_CRI, "l1_CRI/F");
+        Tree_AllVariables->Branch("l2_CRI", &l2_CRI, "l2_CRI/F");
+        //TTree* Tree_All_Final = Tree_AllVariables->CloneTree();
+
+	Tree_Met_Eff->Branch("finWeight", &finWeight, "finWeight/F");
+	Tree_Met_Eff->Branch("met1_pt", &met1_pt, "met1_pt/F");
+	Tree_Met_Eff->Branch("met_Red_pt_IND", &met_Red_pt_IND, "met_Red_pt_IND/F");
+	Tree_Met_Eff->Branch("met_Red_pt_D0", &met_Red_pt_D0, "met_Red_pt_D0/F");
+	Tree_Met_Eff->Branch("met_Red_pt_MIN", &met_Red_pt_MIN, "met_Red_pt_MIN/F");
+	Tree_Met_Eff->Branch("met_WW", &met_WW, "met_WW/F");
+
 	// event loop
 	for (Long64_t jentry=0; jentry<nentries;jentry++) {
 		if( (jentry) % 1000000 ==0 )  cout << "Event: " << jentry << "/" << nentries << endl;
 		Long64_t ientry = LoadTree(jentry); //Set curren entry (-2 if it doesn't exist)
 		if (ientry < 0) break;
-		nb = fChain->GetEntry(jentry);   nbytes += nb;
+		nb = fChain->GetEntry(jentry);   nbytes += nb;	
 
                 //---------- Define Variables ----------           
                 TLorentzVector lept1, lept2, lepts;
                 lept1.SetPxPyPzE(l1_px,l1_py,l1_pz,l1_en);  
                 lept2.SetPxPyPzE(l2_px,l2_py,l2_pz,l2_en);
                 lepts = lept1 + lept2;
-		//@@@@
-		//met1_pt = met3_pt; met1_phi = met3_phi;
-		//@@@
-		float met1_px = met1_pt*cos(met1_phi);
-		float met1_py = met1_pt*sin(met1_phi);
+		PhiZMet = delta_phi(met1_phi,lepts.Phi());
+		met1_px = met1_pt*cos(met1_phi);
+		met1_py = met1_pt*sin(met1_phi);
+		MetParallel = -met1_pt*cos(PhiZMet);
+		MetTransv = met1_pt*sin(PhiZMet);
+		met_Red_pt_IND = sqrt(pow(met_Red_px_IND,2)+pow(met_Red_py_IND,2));
+		met_Red_pt_D0 = sqrt(pow(met_Red_px_D0,2)+pow(met_Red_py_D0,2));
+		met_Red_pt_MIN = sqrt(pow(met_Red_px_MIN,2)+pow(met_Red_py_MIN,2));
+
 		Nvtx = nvtx;// For the TTree for nvtx reweighting
-		double PhiZMet = delta_phi(met1_phi,lepts.Phi());
-		double MetParallel = -met1_pt*cos(PhiZMet);
-		double MetTransv = met1_pt*sin(PhiZMet);
-		double mZZt = sqrt( pow( sqrt(pow(lepts.M(),2)+pow(lepts.Pt(),2)) + sqrt(pow(lepts.M(),2)+pow(met1_pt,2)) ,2) - pow(sqrt( pow(lepts.Px()+met1_px,2)+pow(lepts.Py()+met1_py,2) ),2) );
+		mZZt = sqrt( pow( sqrt(pow(lepts.M(),2)+pow(lepts.Pt(),2)) + sqrt(pow(lepts.M(),2)+pow(met1_pt,2)) ,2) - pow(sqrt( pow(lepts.Px()+met1_px,2)+pow(lepts.Py()+met1_py,2) ),2) );
 
 		// reweighting for pile up & Nvetx
 		finWeight = 1.;
@@ -333,15 +367,17 @@ void ZZ_Finalize::Loop(){
                 float l1Reco = IsoIdCorr( l1_id, lept1 ),	l2Reco = IsoIdCorr( l2_id, lept2 );
 		float eeTrigger = 1., mumuTrigger = 0.92;
 		mumuTrigger = TrigCorr( l1_id, lept1 );
-		    if      (abs(l1_id) == 11 && abs(l2_id) == 11) 	finWeight = Scaling_*weight*eeTrigger;//*l1Reco*l2Reco;
-		    else if (abs(l1_id) == 13 && abs(l2_id) == 13) 	finWeight = Scaling_*weight*mumuTrigger;//*l1Reco*l2Reco;
-		    else 						finWeight = Scaling_*weight;
+		    if      (abs(l1_id) == 11 && abs(l2_id) == 11) 	finWeight = Scaling_*weight*Norm_*eeTrigger;//*l1Reco*l2Reco;
+		    else if (abs(l1_id) == 13 && abs(l2_id) == 13) 	finWeight = Scaling_*weight*Norm_*mumuTrigger;//*l1Reco*l2Reco;
+		    else 						finWeight = Scaling_*weight*Norm_;
 		  if ( nvtx < 20 ) {  finWeight = finWeight * vtxweight[nvtx]; }
 		  if ( nvtx >= 20 ){  finWeight = finWeight * vtxweight[19];   }
 		}
+		// Normalization PU weight
+		NvtxnoW->Fill(nvtx,Scaling_); 
+		NvtxyesW->Fill(nvtx,Scaling_*weight); 
 
 		Eff_Preselection+=finWeight;
-		h_Nevent->SetBinContent(1,(h_Nevent->GetBinContent(1)+1.)*finWeight);
 
 		//---------- Basic Preselection ----------		
 		// check 2 leptons same flavor
@@ -352,11 +388,9 @@ void ZZ_Finalize::Loop(){
 		// check two leptons 
 		if (( !ee && !mumu ) || (ee && mumu ) ) continue;
 		Eff_Two_leptons+=finWeight;
-		h_Nevent->SetBinContent(2,(h_Nevent->GetBinContent(2)+1.)*finWeight);
 		// pt minimum for each lepton
 		if( lept1.Pt() < lept1Pt_ || lept2.Pt() < lept2Pt_ ) continue; 
 		Eff_Pt+=finWeight;
-		h_Nevent->SetBinContent(3,(h_Nevent->GetBinContent(3)+1.)*finWeight);
 
 		// eta fiducial cut
 		if(mumu){	if(fabs(lept1.Eta()) > EtaMu_ || fabs(lept2.Eta()) > EtaMu_) continue;}
@@ -376,7 +410,29 @@ void ZZ_Finalize::Loop(){
 		l1_CRI = (l1_iso1 + l1_iso2 + l1_iso3 - rho * 0.3 * 0.3 * TMath::Pi() )/lept1.Pt();
 		l2_CRI = (l2_iso1 + l2_iso2 + l2_iso3 - rho * 0.3 * 0.3 * TMath::Pi() )/lept2.Pt(); 
 
+		//WW met
+		float Dphi_min1=0, Dphi_min2=0;
+		float Met_Pro1=0, Met_Pro2=0;
+
+		Dphi_min1 = min( delta_phi(lept1.Phi(),met1_phi), delta_phi(lept2.Phi(),met1_phi) );
+		Dphi_min2 = min( delta_phi(lept1.Phi(),met2_phi), delta_phi(lept2.Phi(),met2_phi) );
+
+		if (Dphi_min1 >= 1.5707 ) Met_Pro1 = met1_pt;
+		if (Dphi_min1 < 1.5707 )  Met_Pro1 = met1_pt*sin(Dphi_min1);
+		if (Dphi_min2 >= 1.5707 ) Met_Pro2 = met2_pt;
+                if (Dphi_min2 < 1.5707 )  Met_Pro2 = met2_pt*sin(Dphi_min2);
+
+		met_WW = min(Met_Pro1,Met_Pro2); 
+
+                if(ee)          hee_cut_MET1Pt_PRO->Fill(met_WW,finWeight);
+                if(mumu)        hmumu_cut_MET1Pt_PRO->Fill(met_WW,finWeight);
+                                h_cut_MET1Pt_PRO->Fill(met_WW,finWeight);
+		//if( met_WW < 37 + nvtx/2 ) continue;
+
+		//BRANCH
 		Tree_NVertex->Fill(); //Reweighting N vertex
+		Tree_AllVariables->Fill(); //ALL BRANCH
+		if( met1_pt>20. && (lepts.M() > 83. && lepts.M() < 97.) ) Tree_Met_Eff->Fill();
 
 		//---------- Beginning Histo ----------
                 if (ee){
@@ -411,6 +467,7 @@ void ZZ_Finalize::Loop(){
                         hmumu_in_Iso3->Fill(l1_iso3, finWeight);
                         hmumu_in_Iso->Fill(l1_CRI, finWeight);
                 }
+
                 h_in_llMass->Fill(lepts.M(), finWeight);
                 h_in_llPt->Fill(lepts.Pt(), finWeight);
                 h_in_l1Eta->Fill(lept1.Eta(), finWeight);
@@ -418,6 +475,9 @@ void ZZ_Finalize::Loop(){
                 h_in_l1Pt->Fill(lept1.Pt(), finWeight);
                 h_in_l2Pt->Fill(lept2.Pt(), finWeight);
                 h_in_MET1Pt->Fill(met1_pt, finWeight);
+                h_in_MetRed_IND->Fill( met_Red_pt_IND ,finWeight);
+                h_in_MetRed_D0->Fill( met_Red_pt_D0 ,finWeight);
+                h_in_MetRed_MIN->Fill( met_Red_pt_MIN ,finWeight);
                 h_in_rho->Fill(rho, finWeight);
                 h_in_nvtx->Fill(nvtx, finWeight);
                 h_in_njet->Fill(jn, finWeight);
@@ -495,7 +555,6 @@ void ZZ_Finalize::Loop(){
                                 h_cut_llMass->Fill(lepts.M() ,finWeight);
 		if ( lepts.M() < MZmin_ || lepts.M() > MZmax_ ) continue;
 		Eff_Z_Mass+=finWeight;
-		h_Nevent->SetBinContent(13,(h_Nevent->GetBinContent(13)+1.)*finWeight);
 
 		// check pt of the Z candidate
 		if(ee)		hee_cut_llPt->Fill(lepts.Pt(),finWeight);
@@ -503,7 +562,6 @@ void ZZ_Finalize::Loop(){
 				h_cut_llPt->Fill(lepts.Pt(),finWeight);
 		if (lepts.Pt() < ZPt_) continue; // Trigger for y+jet control sample
 		Eff_Z_Pt+=finWeight;
-		h_Nevent->SetBinContent(4,(h_Nevent->GetBinContent(4)+1.)*finWeight);
 
                 // Jet-Veto
                 veto_Jet = false;
@@ -521,26 +579,6 @@ void ZZ_Finalize::Loop(){
                                 h_cut_njet->Fill(Njet,finWeight);
 		if (veto_Jet) continue;
 		Eff_Jet_Veto+=finWeight;
-		h_Nevent->SetBinContent(5,(h_Nevent->GetBinContent(5)+1.)*finWeight);
-
-		//NEW MET
-		float Dphi_min1=0, Dphi_min2=0;
-		float Met_Pro1=0, Met_Pro2=0;
-		float Met_Final=0;
-		Dphi_min1 = min( delta_phi(lept1.Phi(),met1_phi), delta_phi(lept2.Phi(),met1_phi) );
-		Dphi_min2 = min( delta_phi(lept1.Phi(),met2_phi), delta_phi(lept2.Phi(),met2_phi) );
-
-		if (Dphi_min1 >= 1.5707 ) Met_Pro1 = met1_pt;
-		if (Dphi_min1 < 1.5707 )  Met_Pro1 = met1_pt*sin(Dphi_min1);
-		if (Dphi_min2 >= 1.5707 ) Met_Pro2 = met2_pt;
-                if (Dphi_min2 < 1.5707 )  Met_Pro2 = met2_pt*sin(Dphi_min2);
-
-		Met_Final = min(Met_Pro1,Met_Pro2); 
-
-                if(ee)          hee_cut_MET1Pt_PRO->Fill(Met_Final,finWeight);
-                if(mumu)        hmumu_cut_MET1Pt_PRO->Fill(Met_Final,finWeight);
-                                h_cut_MET1Pt_PRO->Fill(Met_Final,finWeight);
-		//if( Met_Final < 37 + nvtx/2 ) continue;
 
 		// MET Cut
                 if(ee)          hee_cut_MET1Pt->Fill(met1_pt,finWeight);
@@ -548,7 +586,6 @@ void ZZ_Finalize::Loop(){
                                 h_cut_MET1Pt->Fill(met1_pt,finWeight);
 		if( met1_pt < Met_ ) continue;
 		Eff_MET+=finWeight;
-		//h_Nevent->SetBinContent(6,(h_Nevent->GetBinContent(6)+1.)*finWeight);
 
 		// Balance cut
                 if(ee)          hee_cut_Balan->Fill(met1_pt/lepts.Pt(),finWeight);
@@ -556,7 +593,6 @@ void ZZ_Finalize::Loop(){
                                 h_cut_Balan->Fill(met1_pt/lepts.Pt(),finWeight);
 		if( (met1_pt/lepts.Pt()) < BalancMin_ || (met1_pt/lepts.Pt()) > BalancMax_ ) continue; // Balance between the Pt of Z candidate and MET
 		Eff_Balance+=finWeight;
-		h_Nevent->SetBinContent(7,(h_Nevent->GetBinContent(7)+1.)*finWeight);
 		
 		// Delta Phi Jet
 		jet_eta = 0.; jet_pt = 0.;
@@ -569,7 +605,7 @@ void ZZ_Finalize::Loop(){
                         }
                 }
 		Eff_Jet_Phi+=finWeight;
-		h_Nevent->SetBinContent(8,(h_Nevent->GetBinContent(8)+1.)*finWeight);
+
 		if( Phi_hardJet < 700. ){
                  if(ee)          hee_cut_PhiJet->Fill( fabs(delta_phi(Phi_hardJet,met1_phi)) ,finWeight );
                  if(mumu)        hmumu_cut_PhiJet->Fill( fabs(delta_phi(Phi_hardJet,met1_phi)) ,finWeight);
@@ -583,7 +619,6 @@ void ZZ_Finalize::Loop(){
                                 h_cut_PhiZ->Fill(PhiZMet,finWeight);
 		if( PhiZMet < PhiZ_ ) continue; //60 degrees
 		Eff_Z_Phi+=finWeight;
-		h_Nevent->SetBinContent(9,(h_Nevent->GetBinContent(9)+1.)*finWeight);
 
 		// B-tagging
 		isThereBJet = false;
@@ -601,7 +636,6 @@ void ZZ_Finalize::Loop(){
 		}
 		if (isThereBJet) continue;
 		Eff_B_Veto+=finWeight;
-		h_Nevent->SetBinContent(10,(h_Nevent->GetBinContent(10)+1.)*finWeight);
 		
 		// leptons veto
 		if (sqrt(ln_px[0]*ln_px[0]+ln_py[0]*ln_py[0])>10.){
@@ -613,14 +647,14 @@ void ZZ_Finalize::Loop(){
 			if ( ( abs(ln_id[0]) == 11 || abs(ln_id[0]) == 13 ) && sqrt(ln_px[0]*ln_px[0]+ln_py[0]*ln_py[0])>10. ) continue; //was20
 		}
 		Eff_Lept_Veto+=finWeight;
-		h_Nevent->SetBinContent(11,(h_Nevent->GetBinContent(11)+1.)*finWeight);
 		
 		// check the isolation of the leptons
 		if	(mumu && !ee ){	if( l1_CRI > Iso1 || l2_CRI > Iso2) continue;}
 		else if (ee && !mumu ){	if( l1_CRI > Iso1 || l2_CRI > Iso2) continue;}
 		else	cout<<"That's impossible!"<<endl;
 		Eff_ISO+=finWeight;
-		h_Nevent->SetBinContent(12,(h_Nevent->GetBinContent(12)+1.)*finWeight);
+
+		//Tree_All_Final->Fill();
 
 		// Z mass window
                 //@@if(ee)          hee_cut_llMass->Fill(lepts.M() ,finWeight);
@@ -628,12 +662,12 @@ void ZZ_Finalize::Loop(){
                 //                h_cut_llMass->Fill(lepts.M() ,finWeight);
 		//if ( lepts.M() < MZmin_ || lepts.M() > MZmax_ ) continue;
 		//Eff_Z_Mass+=finWeight;
-		//h_Nevent->SetBinContent(13,(h_Nevent->GetBinContent(13)+1.)*finWeight);
 
 		//if(lepts.Pt()>260.){ cout<<"DATASET: "<<Dataset_<<" RUN "<<run<<" LUMI "<<lumi<<" EVENT "<<event<<endl;   
 		//cout<<"N Jet: "<<Njet<<endl;
 		//}
 		// ZPt ranges
+
 		if( lepts.Pt() <= 50 ){
 		h_Pt50_mZ->Fill(lepts.M(), finWeight);
 		}
@@ -717,6 +751,9 @@ if( (h_in_METx18vtx->GetEntries() > 0.) && (h_in_METx12vtx->GetEntries() > 0.) )
 }*/
 	dir->GetList()->Write();
 	Tree_NVertex->Write();
+	Tree_AllVariables->Write();
+	Tree_Met_Eff->Write();
+	//Tree_All_Final->Write();
 	file->Close();
 	dir->GetList()->Delete();
 
@@ -796,20 +833,20 @@ double TrigCorr( int l_id, TLorentzVector lept ) {
   }
  else if ( abs(l_id) == 13 ){
         if( lept.Eta()>0 && lept.Eta()<=0.8 ){
-                if      ( lept.Pt()>20 && lept.Pt()<30 ) WEIGHT = 0.98;
-                else                                     WEIGHT = 0.97;
+                if      ( lept.Pt()>20 && lept.Pt()<30 ) WEIGHT = 0.977;
+                else                                     WEIGHT = 0.977;
         }
         else if( lept.Eta()>0.8 && lept.Eta()<=1.2 ){
-                if      ( lept.Pt()>20 && lept.Pt()<30 ) WEIGHT = 0.95;
-                else                                     WEIGHT = 0.95;
+                if      ( lept.Pt()>20 && lept.Pt()<30 ) WEIGHT = 0.96;
+                else                                     WEIGHT = 0.955;
         }
         else if( lept.Eta()>1.2 && lept.Eta()<=2.1 ){
-                if      ( lept.Pt()>20 && lept.Pt()<30 ) WEIGHT = 0.95;
-                else                                     WEIGHT = 0.96;
+                if      ( lept.Pt()>20 && lept.Pt()<30 ) WEIGHT = 0.955;
+                else                                     WEIGHT = 0.95;
         } 
         else{
-                if      ( lept.Pt()>20 && lept.Pt()<30 ) WEIGHT = 0.89;
-                else                                     WEIGHT = 0.90;
+                if      ( lept.Pt()>20 && lept.Pt()<30 ) WEIGHT = 0.87;
+                else                                     WEIGHT = 0.88;
         }
   }
 
@@ -864,7 +901,7 @@ double IsoIdCorr( int l_id, TLorentzVector lept ) {
 }
 
 void ZZ_Finalize::SetSelection(TString Selection){
-  if(  Selection.Contains("Standard") ){
+  if( Selection.Contains("Standard") ){
   lept1Pt_ = 20.; lept2Pt_ = 20. ;
   EtaMu_ = 2.4; EtaEle_ = 2.5; 
   ZPt_ = 30;
@@ -875,5 +912,17 @@ void ZZ_Finalize::SetSelection(TString Selection){
   Iso1 = 0.15; Iso2 = 0.15;
   MZmin_ = 80; MZmax_ = 100;
   }
+  else if( Selection.Contains("Preselection") ){
+  lept1Pt_ = 10.; lept2Pt_ = 10. ;
+  EtaMu_ = 2.4; EtaEle_ = 2.5;
+  ZPt_ = 10.;
+  Met_ = 10.;
+  BalancMin_ = 0.; BalancMax_ = 3.;
+  PhiZ_ = 0.;
+  PhiJet_ = 0.;
+  Iso1 = 99.; Iso2 = 99.;
+  MZmin_ = 0.; MZmax_ = 999.;
+  }
+
   else cout << "Sorry man... Selection not known!" << endl;
 }
