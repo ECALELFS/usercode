@@ -37,7 +37,7 @@ string get_lumiText() const;
 
 TH1F** InitHistoTH1F(const char *name, const char *title, int size, int nbin, float xnim, float xmax );
 void NormalFill( int Ndata, TTree **AllTree, TH1F **histo, float *varName, float *finWeight, float *LumiTot );
-void NormalFill( int Ndata, TTree **AllTree, TH1F **histo, int *varName, float *finWeight, float *LumiTot );
+void NormalFill2( int Ndata, TTree **AllTree, TH1F **histo, int *varName, float *finWeight, float *LumiTot );
 
 TLegend* MakeLeg_Comparison(TH1F **h, float x1, float x2, float y1, float y2);
 THStack* MakeStack(TH1F **h);

@@ -26,12 +26,13 @@ using namespace N_DATA;
 int main(int argc, char* argv[]){
 
 	TCanvas* myc1 = new TCanvas("myc1", "CMS", 600, 600);
-	//myc1->SetFillColor(0); gStyle->SetOptStat(0);
 
 	DrawLP *d1 = new DrawLP(4615.);  //Constructor
 
 	float Lumi = d1->getLumi();
 	float LumiTot[NdataSet];
+	d1->SetOutputdir("Plot_LP");
+
 	for( int i=0; i < NdataSet; i++ ){
 	if(i==0) LumiTot[i] = 1.;
 	else LumiTot[i] = Lumi; 
@@ -54,33 +55,37 @@ int main(int argc, char* argv[]){
 	float finWeight[ NdataSet ]={finWeight_DA, finWeight_DY, finWeight_WJ, finWeight_TT, finWeight_WW, finWeight_WZ, finWeight_ZZ};
 	d1->BranchAdd( AllTree, "finWeight", finWeight, NdataSet );
 
-	//HISTO: hee_in_llPx
-	TH1F **hee_in_llPx;
-	hee_in_llPx = d1->InitHisto("", "", NdataSet );
-	THStack* hee_in_llPx_S = new THStack("hee_in_llPx_S","");
-
-        // BR: hee_in_llPx
-        float l1_px_DA, l1_px_DY, l1_px_WJ, l1_px_TT, l1_px_WW, l1_px_WZ, l1_px_ZZ;
-        float l1_px[ NdataSet ]={l1_px_DA, l1_px_DY, l1_px_WJ, l1_px_TT, l1_px_WW, l1_px_WZ, l1_px_ZZ};
-        d1->BranchAdd( AllTree, "l1_px", l1_px, NdataSet );
-
-	// hee_in_llPx
-	for( int i=0; i < NdataSet; ++i ){
-        	for( int iEntry=0; iEntry<AllTree[i]->GetEntries(); iEntry++ ){
-        	AllTree[i]->GetEntry(iEntry);
-		hee_in_llPx[i]->Fill(l1_px[i], finWeight[i]*LumiTot[i]);
-        	}
-	}
-
-
-	// STACK & LEG & Plot
-	hee_in_llPx_S = d1->MakeStack(hee_in_llPx);
-	TLegend *leg_ee_px;	leg_ee_px = d1->MakeLeg_Comparison( hee_in_llPx, 0.6, 0.4, 0.9, 0.88);
-	d1->Plot(myc1, hee_in_llPx_S, leg_ee_px, hee_in_llPx[DATA], "PROVA.png","(ele) Px","GeV");
+//NVTX	//HISTO & BRANCH
+	TH1F **h_in_nvtx;	h_in_nvtx = d1->InitHistoTH1F("h_in_nvtx", "", NdataSet, 20, 0., 20. );		THStack* h_in_nvtx_S = new THStack("h_in_nvtx_S","");
+        int nvtx_DA, nvtx_DY, nvtx_WJ, nvtx_TT, nvtx_WW, nvtx_WZ, nvtx_ZZ;
+        int nvtx[ NdataSet ]={nvtx_DA, nvtx_DY, nvtx_WJ, nvtx_TT, nvtx_WW, nvtx_WZ, nvtx_ZZ};
+        d1->BranchAdd( AllTree, "nvtx", nvtx, NdataSet );
+	//NORMAL FILL
+	d1->NormalFill2( NdataSet, AllTree, h_in_nvtx, nvtx, finWeight, LumiTot);
+	//Stack & Leg & Plot
+	h_in_nvtx_S = d1->MakeStack(h_in_nvtx);
+	TLegend *leg_nvtx;	leg_nvtx = d1->MakeLeg_Comparison( h_in_nvtx, 0.6, 0.4, 0.9, 0.88);
+	d1->Plot(myc1, h_in_nvtx_S, leg_nvtx, h_in_nvtx[DATA], "nvtx","Num of vertex","");
+        // DESTRUCTORS
+        d1->deleteHisto(h_in_nvtx, NdataSet );
+        delete h_in_nvtx_S;
+//Met1  //HISTO & BRANCH
+        TH1F **h_in_met1_pt;       h_in_met1_pt = d1->InitHistoTH1F("h_in_met1_pt", "", NdataSet, 50, 0., 200. );          THStack* h_in_met1_pt_S = new THStack("h_in_met1_pt_S","");
+        float met1_pt_DA, met1_pt_DY, met1_pt_WJ, met1_pt_TT, met1_pt_WW, met1_pt_WZ, met1_pt_ZZ;
+        float met1_pt[ NdataSet ]={met1_pt_DA, met1_pt_DY, met1_pt_WJ, met1_pt_TT, met1_pt_WW, met1_pt_WZ, met1_pt_ZZ};
+        d1->BranchAdd( AllTree, "met1_pt", met1_pt, NdataSet );
+        //NORMAL FILL
+	d1->NormalFill( NdataSet, AllTree, h_in_met1_pt, met1_pt, finWeight, LumiTot);
+        //HISTO & BRANCH: Met1
+        h_in_met1_pt_S = d1->MakeStack(h_in_met1_pt);
+        TLegend *leg_met1;      leg_met1 = d1->MakeLeg_Comparison( h_in_met1_pt, 0.6, 0.4, 0.9, 0.88);
+        d1->Plot(myc1, h_in_met1_pt_S, leg_met1, h_in_met1_pt[DATA], "met1","PFMet","GeV");
 
 	// DESTRUCTORS
-	d1->deleteHisto(hee_in_llPx, NdataSet );
-	delete hee_in_llPx_S; 
+	d1->deleteHisto(h_in_nvtx, NdataSet );
+	delete h_in_nvtx_S; 
+        d1->deleteHisto(h_in_met1_pt, NdataSet );
+	delete h_in_met1_pt_S; 
 
 	delete d1;  
 	delete myc1; 

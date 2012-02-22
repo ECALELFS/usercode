@@ -244,7 +244,6 @@ TH1F** DrawLP::InitHistoTH1F(const char *name, const char *title, int size, int 
         sprintf(name_c, "%s%d", name, jR);
         sprintf(title_c, "%s%d", title, jR);
         h[jR] = new TH1F(name_c, title_c,  nbin, xnim, xmax);
-       // h[jR]->GetXaxis()->SetTitle("Px");
     }
     return h;
 }
@@ -259,7 +258,7 @@ void DrawLP::NormalFill( int Ndata, TTree **AllTree, TH1F **histo, float *varNam
         }
 }
 
-void DrawLP::NormalFill( int Ndata, TTree **AllTree, TH1F **histo, int *varName, float *finWeight, float *LumiTot ){
+void DrawLP::NormalFill2( int Ndata, TTree **AllTree, TH1F **histo, int *varName, float *finWeight, float *LumiTot ){
 
        for( int i=0; i < Ndata; ++i ){
                 for( int iEntry=0; iEntry<AllTree[i]->GetEntries(); iEntry++ ){
