@@ -7,4 +7,4 @@ cd Analysis/Modules/test
 #echo 'python /afs/cern.ch/work/l/lpernie/ECALpro/ETA_TRY/CMSSW_5_3_6/src/Analysis/Modules/test/RunOnBatch.py'
 #python /afs/cern.ch/work/l/lpernie/ECALpro/ETA_TRY/CMSSW_5_3_6/src/Analysis/Modules/testRunOnBatch.py
 echo 'python /afs/cern.ch/work/l/lpernie/ECALpro/ETA_TRY/CMSSW_5_3_6/src/Analysis/Modules/test/RunOnBatch_data.py'
-python /afs/cern.ch/work/l/lpernie/ECALpro/ETA_TRY/CMSSW_5_3_6/src/Analysis/Modules/RunOnBatch_data.py
+python /afs/cern.ch/work/l/lpernie/ECALpro/ETA_TRY/CMSSW_5_3_6/src/Analysis/Modules/test/RunOnBatch_data.py
