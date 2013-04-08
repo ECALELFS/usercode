@@ -50,20 +50,24 @@
 
 using namespace std;
 
-int faisto2011 ( bool EBoEE ){
+int faisto2011 ( bool isEB, bool isPi0=true ){
 
-    if(EBoEE) cout<<"Running on Barrel"<<endl;
+    if(isEB)  cout<<"Running on Barrel"<<endl;
     else      cout<<"Running on Endcap"<<endl;
+    if(isPi0) cout<<"Running on Pi0"<<endl;
+    else      cout<<"Running on Eta"<<endl;
 
     //File
     FILE *file_txt;
     TString name_txt;
-    if(EBoEE) name_txt = "BIN_cut_EB.txt";
+    if(isEB)  name_txt = "BIN_cut_EB.txt";
     else      name_txt = "BIN_cut_EE.txt";
     file_txt=fopen(name_txt.Data(),"w");
     //TTree
-    TChain *tree = new TChain("Tree_HLT","Output TTree");
-    tree->Add("root://eoscms//eos/cms/store/group/alca_ecalcalib/lpernie/2012_Pi0_newTree01.root");
+    //TChain *tree = new TChain("Tree_HLT","Output TTree");
+    TChain *tree = new TChain("tree_opt","Output TTree");
+    //tree->Add("root://eoscms//eos/cms/store/group/alca_ecalcalib/lpernie/2012_Pi0_newTree01.root");
+    tree->Add("root://eoscms//eos/cms/store/group/alca_ecalcalib/lpernie/ETA_optimization.root");
     Int_t event = tree->GetEntries();
     cout << "Number of events in tree: " << event << endl;
     //Check TTree
@@ -79,7 +83,7 @@ int faisto2011 ( bool EBoEE ){
     }
 
     TString nameOutput;
-    if(EBoEE) nameOutput="Step1_Alca2012B_EB.root";
+    if(isEB) nameOutput="Step1_Alca2012B_EB.root";
     else      nameOutput="Step1_Alca2012B_EE.root";
     TFile* cartella = new TFile(nameOutput.Data(),"RECREATE");
     //**************DICHIARAZIONE VARIABILI*********//  
@@ -117,9 +121,9 @@ int faisto2011 ( bool EBoEE ){
     tree->SetBranchAddress("STr2_S4S9_2",&s4s9_2);
 
     //definisco gli istogrammi
-    Int_t nhisto =10001;
-    char cha[nhisto];
-    char tag[nhisto];
+    //Int_t nhisto =10001;
+    //char cha[nhisto];
+    //char tag[nhisto];
 
     //riempio vettori tagli
     //Nxtal 1
@@ -129,14 +133,14 @@ int faisto2011 ( bool EBoEE ){
     vector <Int_t> ncri2cut;
     for(Int_t j=4;j<7;j++) ncri2cut.push_back(j);
     //Pt_clus
-    Double_t pcs=0.4;
-    Double_t pcf=1.0;
+    Double_t pcs=isPi0?0.4:0.7;
+    Double_t pcf=isPi0?1.0:1.3;
     Double_t pcp=0.2;
     vector <Float_t> ptclucut;
     for(Double_t j=pcs;j<=pcf;j+=pcp) ptclucut.push_back(j);
     //Pt Pi0
-    Double_t pps=1.2;
-    Double_t ppf=2.4;
+    Double_t pps=isPi0?1.2:2;
+    Double_t ppf=isPi0?2.4:3.2;
     Double_t ppp=0.3;
     vector <Float_t> ptPi0cut;
     for(Double_t j=pps;j<=ppf;j+=ppp) ptPi0cut.push_back(j);
@@ -147,8 +151,8 @@ int faisto2011 ( bool EBoEE ){
     vector <Float_t> elayercut; elayercut.clear();
     for(Double_t j=ess;j<=esf;j+=esp) elayercut.push_back(j);
     //S4S9
-    Double_t s4i=0.7;
-    Double_t s4f=0.9;
+    Double_t s4i=isPi0?0.7:0.75;
+    Double_t s4f=isPi0?0.9:0.95;
     Double_t s4p=0.05;
     vector <Float_t> s4s9cut;
     for(Double_t j=s4i;j<=s4f;j+=s4p) s4s9cut.push_back(j);
@@ -179,20 +183,18 @@ int faisto2011 ( bool EBoEE ){
 	  }
     }
     cout<<"You are optimizing for: "<<nBin<<" bin"<<endl;
-    TH2F *hmass = new TH2F("hmass","Histo For optimization",nBin,0.5,nBin+0.5,100,0.05,0.3);
-    TH2F *hmass_tot = new TH2F("hmass_tot","Histo For optimization",nBin,0.5,nBin+0.5,100,0.05,0.3);
-
-
-    // LETTURA DATI//
-    Int_t eventiparz=0;
+    float xmin=0.05, xmax=0.3;
+    if(!isPi0){ xmin=0.4; xmax=0.7;}
+    TH2F *hmass = new TH2F("hmass","Histo For optimization",nBin,0.5,nBin+0.5,100,xmin,xmax);
+    TH2F *hmass_tot = new TH2F("hmass_tot","Histo For optimization",nBin,0.5,nBin+0.5,100,xmin,xmax);
 
     int EB_EE(-1);
-    if(EBoEE) EB_EE=1;
+    if(isEB)  EB_EE=1;
     else      EB_EE=2;
     cout << "Start reading data ..." << endl;
     for(int ii=0; ii<event; ii++){
 	  tree->GetEntry(ii);
-	  if( ii%500000==0 ) cout<<"Ev: "<<ii<<endl;
+	  if( ii%100000==0 ) cout<<"Ev: "<<ii<<endl;
 	  for(Int_t jj=0; jj<npi; jj++){
 
 		//Start Grid of cuts
@@ -204,8 +206,19 @@ int faisto2011 ( bool EBoEE ){
 				    for(unsigned s=0; s<s4s9cut.size();s++ ){
 					  for(unsigned q=0; q<isocut.size();q++ ){
 						for(unsigned z=0; z<ptPi0cut.size();z++ ){ 
+
+//if(iseb[jj]==EB_EE){
+//cout<<endl;
+//if( ncris1[jj]>ncri1cut[i] && ncris2[jj]>ncri2cut[j] ) cout<<"0 ";
+//if( ptclu1[jj]>ptclucut[k] && ptclu2[jj]>ptclucut[k] ) cout<<" 1 ";
+//if( ptpi0[jj]>ptPi0cut[z] ) cout<<" 2 ";
+//if(s4s9_1[jj]>s4s9cut[s] && s4s9_2[jj]>s4s9cut[s] ) cout<<" 3 ";
+//if( iso[jj]>isocut[q] ) cout<<" 4 ";
+//if( ( (E_Es_e1_1[jj]+E_Es_e2_1[jj])>elayercut[h] || iseb[jj]==1) && ((E_Es_e1_2[jj]+E_Es_e2_2[jj])>elayercut[h] || iseb[jj]==1) ) cout<<" 5 ";
+//}
+
 						    if( iseb[jj]==EB_EE && ncris1[jj]>ncri1cut[i] && ncris2[jj]>ncri2cut[j] && ptclu1[jj]>ptclucut[k] && ptclu2[jj]>ptclucut[k] && ptpi0[jj]>ptPi0cut[z]
-								&& s4s9_1[jj]>s4s9cut[s] && s4s9_2[jj]>s4s9cut[s] && iso[jj]>isocut[q] && ( (E_Es_e1_1[jj]+E_Es_e2_1[jj])>elayercut[h] || (E_Es_e1_1[jj]+E_Es_e2_1[jj])==-2) && ((E_Es_e1_2[jj]+E_Es_e2_2[jj])>elayercut[h] || (E_Es_e1_2[jj]+E_Es_e2_2[jj])==-2) ){
+								&& /*s4s9_1[jj]>s4s9cut[s] && s4s9_2[jj]>s4s9cut[s] &&*/ iso[jj]>isocut[q] && ( (E_Es_e1_1[jj]+E_Es_e2_1[jj])>elayercut[h] || iseb[jj]==1) && ((E_Es_e1_2[jj]+E_Es_e2_2[jj])>elayercut[h] || iseb[jj]==1) ){
 							  hmass->Fill( binTrue+1, massPi0[jj] );
 						    }
 						    if( iseb[jj]==EB_EE ) hmass_tot->Fill( binTrue+1, massPi0[jj] );

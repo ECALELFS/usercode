@@ -58,9 +58,9 @@ struct FFitResult {
 };
 
 
-FFitResult FitFit(TH1D* h,double xmin,double xmax,int eventi, int Name, FILE *file_txt, float eff );
+FFitResult FitFit(TH1D* h,double xmin,double xmax,int eventi, int Name, FILE *file_txt, float eff , bool Are_pi0_);
 
-void fitsb (bool isEB){
+void fitsb (bool isEB, bool Are_pi0_=true){
 
     TString input;
     if(isEB) input="Step1_Alca2012B_EB.root";
@@ -79,8 +79,8 @@ void fitsb (bool isEB){
     file_txt=fopen(input.Data(),"w");
     cout << "Now starting the Fit procedure ..." << endl;
 
-    double  xmin=0.05;
-    double  xmax=0.25; 
+    double  xmin=0.05, xmax=0.25;
+    if(!Are_pi0_){ xmin=0.4, xmax=0.65; }
     cout<<"You have "<<histo->GetNbinsX()<<" bins..."<<endl;  
     for(int i=0; i<histo->GetNbinsX(); i++){
 	  TH1D *h1;
@@ -89,14 +89,22 @@ void fitsb (bool isEB){
 	  h1_tot = histo_tot->ProjectionY("_py",i+1,i+1);
 	  int Nentr = h1->GetEntries();
 	  int Nentr_tot = h1_tot->GetEntries();
-	  int iMin = h1->GetXaxis()->FindBin(0.08);
-	  int iMax = h1->GetXaxis()->FindBin(0.18);
+	  int iMin(0);
+	  int iMax(0);
+	  if(Are_pi0_){ 
+	    iMin = h1->GetXaxis()->FindBin(0.08);
+	    iMax = h1->GetXaxis()->FindBin(0.18);
+	  }
+	  else{
+	    iMin = h1->GetXaxis()->FindBin(0.4);
+	    iMax = h1->GetXaxis()->FindBin(0.7);
+	  }
 	  double integral = h1->Integral(iMin, iMax);
 	  float eff =  (float)Nentr/(float)Nentr_tot;
 cout<<"EFF "<<eff<<"  "<<Nentr<<"  "<<Nentr_tot<<endl;
 	  if(eff>0.15){
 	    FFitResult res;
-	    res = FitFit(h1, xmin, xmax, Nentr, i, file_txt, eff);
+	    res = FitFit(h1, xmin, xmax, Nentr, i, file_txt, eff, Are_pi0_);
 	  }
     }
 
@@ -106,7 +114,7 @@ cout<<"EFF "<<eff<<"  "<<Nentr<<"  "<<Nentr_tot<<endl;
 
 
 
-FFitResult FitFit(TH1D* h,double xmin, double xmax,int eventi, int Name, FILE *file_txt, float eff ){
+FFitResult FitFit(TH1D* h,double xmin, double xmax,int eventi, int Name, FILE *file_txt, float eff , bool Are_pi0_){
     stringstream ss; ss << Name; 
     TString NameTrue = "Bin_"+ss.str();
     TCanvas* myc1 = new TCanvas(NameTrue.Data(), "CMS", 600, 600); 
@@ -119,7 +127,7 @@ FFitResult FitFit(TH1D* h,double xmin, double xmax,int eventi, int Name, FILE *f
     RooDataHist dh("dh","#gamma#gamma invariant mass",RooArgList(x),h);
 
     // valore minimo massimo
-    RooRealVar mean("mean","#pi^{0} peak position",0.116, 0.105,0.145,"GeV/c^{2}");
+    RooRealVar mean("mean","#pi^{0} peak position", Are_pi0_?0.116:0.57,  Are_pi0_?0.105:0.5, Are_pi0_?0.150:0.65,"GeV/c^{2}");
     RooRealVar sigma("sigma","#pi^{0} core #sigma",0.010, 0.005,0.025,"GeV/c^{2}");
 
     RooRealVar Nsig("Nsig","#pi^{0} yield",1000,0.,1.e7);
@@ -205,5 +213,4 @@ FFitResult FitFit(TH1D* h,double xmin, double xmax,int eventi, int Name, FILE *f
 
     myc1->Write();
     delete myc1;
-    return risultato;
 }
