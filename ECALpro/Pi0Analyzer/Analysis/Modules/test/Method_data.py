@@ -143,8 +143,8 @@ def printFillCfg_2(pwd, outputfile, njob, outdir, OnlyContCorr, nInter, useES, c
        outputfile.write("    process." + GunName  + ".EBRecHitCollectionTag = cms.untracked.InputTag('ecalPi0ReCorrected','pi0EcalRecHitsEB')\n")
        outputfile.write("    process." + GunName  + ".EERecHitCollectionTag = cms.untracked.InputTag('ecalPi0ReCorrected','pi0EcalRecHitsEE')\n")
     else:
-       outputfile.write("    process." + GunName  + ".EBRecHitCollectionTag = cms.untracked.InputTag('ecalEtaReCorrected','etaEcalRecHitsEB')\n")
-       outputfile.write("    process." + GunName  + ".EERecHitCollectionTag = cms.untracked.InputTag('ecalEtaReCorrected','etaEcalRecHitsEE')\n")
+       outputfile.write("    process." + GunName  + ".EBRecHitCollectionTag = cms.untracked.InputTag('ecalPi0ReCorrected','etaEcalRecHitsEB')\n")
+       outputfile.write("    process." + GunName  + ".EERecHitCollectionTag = cms.untracked.InputTag('ecalPi0ReCorrected','etaEcalRecHitsEE')\n")
     outputfile.write("else:\n")
     outputfile.write("    process." + GunName  + ".EBRecHitCollectionTag = cms.untracked." + ebInputTag + "\n")
     outputfile.write("    process." + GunName  + ".EERecHitCollectionTag = cms.untracked." + eeInputTag + "\n")
