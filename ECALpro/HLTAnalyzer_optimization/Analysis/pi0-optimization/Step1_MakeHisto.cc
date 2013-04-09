@@ -74,6 +74,11 @@ int Make2DHisto( bool isEB, bool isPi0=true ){
     //tree->Add("root://eoscms//eos/cms/store/group/alca_ecalcalib/lpernie/2012_Pi0_newTree01.root");
     tree->Add("root://eoscms//eos/cms/store/caf/user/lpernie/ANALYZ_RunD_Eta_03/LocalPi0Alca_0.root");
     tree->Add("root://eoscms//eos/cms/store/caf/user/lpernie/ANALYZ_RunD_Eta_03/LocalPi0Alca_1.root");
+    tree->Add("root://eoscms//eos/cms/store/caf/user/lpernie/ANALYZ_RunD_Eta_03/LocalPi0Alca_2.root");
+    tree->Add("root://eoscms//eos/cms/store/caf/user/lpernie/ANALYZ_RunD_Eta_03/LocalPi0Alca_3.root");
+    tree->Add("root://eoscms//eos/cms/store/caf/user/lpernie/ANALYZ_RunD_Eta_03/LocalPi0Alca_4.root");
+    tree->Add("root://eoscms//eos/cms/store/caf/user/lpernie/ANALYZ_RunD_Eta_03/LocalPi0Alca_5.root");
+    tree->Add("root://eoscms//eos/cms/store/caf/user/lpernie/ANALYZ_RunD_Eta_03/LocalPi0Alca_6.root");
     Int_t event = tree->GetEntries();
     cout << "Number of events in tree: " << event << endl;
     //Check TTree
@@ -202,33 +207,23 @@ int Make2DHisto( bool isEB, bool isPi0=true ){
 	  tree->GetEntry(ii);
 	  if( ii%100000==0 ) cout<<"Ev: "<<ii<<endl;
 	  for(Int_t jj=0; jj<npi; jj++){
-
-		//Start Grid of cuts
-		Int_t binTrue=0;
-		for(unsigned i=0; i<ncri1cut.size();i++ ){
-		    for(unsigned j=0; j<ncri2cut.size();j++ ){
-			  for(unsigned k=0; k<ptclucut.size();k++ ){
-				for(unsigned h=0; h<elayercut.size();h++ ){
-				    for(unsigned s=0; s<s4s9cut.size();s++ ){
-					  for(unsigned q=0; q<isocut.size();q++ ){
-						for(unsigned z=0; z<ptPi0cut.size();z++ ){ 
-
-						    //if(iseb[jj]==EB_EE){
-						    //cout<<endl;
-						    //if( ncris1[jj]>ncri1cut[i] && ncris2[jj]>ncri2cut[j] ) cout<<"0 ";
-						    //if( ptclu1[jj]>ptclucut[k] && ptclu2[jj]>ptclucut[k] ) cout<<" 1 ";
-						    //if( ptpi0[jj]>ptPi0cut[z] ) cout<<" 2 ";
-						    //if(s4s9_1[jj]>s4s9cut[s] && s4s9_2[jj]>s4s9cut[s] ) cout<<" 3 ";
-						    //if( iso[jj]>isocut[q] ) cout<<" 4 ";
-						    //if( ( (E_Es_e1_1[jj]+E_Es_e2_1[jj])>elayercut[h] || iseb[jj]==1) && ((E_Es_e1_2[jj]+E_Es_e2_2[jj])>elayercut[h] || iseb[jj]==1) ) cout<<" 5 ";
-						    //}
-
-						    if( iseb[jj]==EB_EE && ncris1[jj]>ncri1cut[i] && ncris2[jj]>ncri2cut[j] && ptclu1[jj]>ptclucut[k] && ptclu2[jj]>ptclucut[k] && ptpi0[jj]>ptPi0cut[z]
-								&& s4s9_1[jj]>s4s9cut[s] && s4s9_2[jj]>s4s9cut[s] && iso[jj]>isocut[q] && ( (E_Es_e1_1[jj]+E_Es_e2_1[jj])>elayercut[h] || iseb[jj]==1) && ((E_Es_e1_2[jj]+E_Es_e2_2[jj])>elayercut[h] || iseb[jj]==1) ){
-							  hmass->Fill( binTrue+1, massPi0[jj] );
+		if(abs(etapi0[jj])<(!isEB && !isPi0)?2.3:10.){//for eta in EE I only optimize at low #eta
+		    //Start Grid of cuts
+		    Int_t binTrue=0;
+		    for(unsigned i=0; i<ncri1cut.size();i++ ){
+			  for(unsigned j=0; j<ncri2cut.size();j++ ){
+				for(unsigned k=0; k<ptclucut.size();k++ ){
+				    for(unsigned h=0; h<elayercut.size();h++ ){
+					  for(unsigned s=0; s<s4s9cut.size();s++ ){
+						for(unsigned q=0; q<isocut.size();q++ ){
+						    for(unsigned z=0; z<ptPi0cut.size();z++ ){ 
+							  if( iseb[jj]==EB_EE && ncris1[jj]>ncri1cut[i] && ncris2[jj]>ncri2cut[j] && ptclu1[jj]>ptclucut[k] && ptclu2[jj]>ptclucut[k] && ptpi0[jj]>ptPi0cut[z]
+								    && s4s9_1[jj]>s4s9cut[s] && s4s9_2[jj]>s4s9cut[s] && iso[jj]>isocut[q] && ( (E_Es_e1_1[jj]+E_Es_e2_1[jj])>elayercut[h] || iseb[jj]==1) && ((E_Es_e1_2[jj]+E_Es_e2_2[jj])>elayercut[h] || iseb[jj]==1) ){
+								hmass->Fill( binTrue+1, massPi0[jj] );
+							  }
+							  if( iseb[jj]==EB_EE ) hmass_tot->Fill( binTrue+1, massPi0[jj] );
+							  binTrue++;
 						    }
-						    if( iseb[jj]==EB_EE ) hmass_tot->Fill( binTrue+1, massPi0[jj] );
-						    binTrue++;
 						}
 					  }
 				    }
@@ -249,4 +244,3 @@ int Make2DHisto( bool isEB, bool isPi0=true ){
     cartella->Close();
     return 0;
 }
-
