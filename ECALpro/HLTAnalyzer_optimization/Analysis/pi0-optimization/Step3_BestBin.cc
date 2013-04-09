@@ -17,7 +17,7 @@ using namespace std;
 #include "TString.h"
 #include "TPaveStats.h"
 
-void Best(bool isEB, isPi0=true){
+void Best(bool isEB, bool isPi0=true){
 
     //FILE *f_1;
     FILE *f_2;
