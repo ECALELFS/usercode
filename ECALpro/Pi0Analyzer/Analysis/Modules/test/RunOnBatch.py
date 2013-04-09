@@ -3,43 +3,35 @@
 import subprocess, time, sys, os
 from Method import *
 
-pwd         = os.getcwd()
-eosPath     = '/store/caf/user/lpernie' 
-#queue    = 'cmscaf1nd'
-queue    = '8nh'
+pwd          = os.getcwd()
+eosPath      = '/store/caf/user/lpernie'
+queue        = '8nh' #option: cmscaf1nd
 OnlyContCorr = False
-nInter = -1
-useES = 'True'
-Gamma_MVA = 'False'
-
-#cut
-cuts4s9 = 0.8
-isGun    = True
+isPi0        = True
+is2012       = False
+nInter       = -1
+useES        = 'True'
+cuts4s9      = 0.7
+isGun        = False#!
 
 if isGun:
-   isaGun       = 'True'
-   Gamma_MVA    = False #!
-   OnlyContCorr = False  #!
-   dirname      = 'Prova_01'#!
+   OnlyContCorr     = False  #!
+   dirname          = 'Prova_01'#!
    if OnlyContCorr : 
-      inputlist_n = pwd + '/InputPi0Gun_group.txt'
-      ijobmax     = 15
+      inputlist_n   = pwd + '/InputPi0Gun_group.txt'
+      ijobmax       = 15
    else:
       # Se vuoi il TTree dell'MVA
-      if Gamma_MVA:
-         inputlist_n = pwd + '/InputPi0Gun_groupGAMMA.txt'
-      else:
-         # Se vuoi girare su tutti i Pi0
-         inputlist_n = pwd + '/InputPi0Gun_group.txt'#!
-         #inputlist_n = pwd + '/InputPi0Gun_group_short.txt'#!
-      ijobmax     = 25#! 7 per MVA solo
+      inputlist_n   = pwd + '/InputPi0Gun_group.txt'#! #Per girare su pochi o tanti files: InputPi0Gun_group.txt/InputPi0Gun_group_short.txt
+      ijobmax       = 25#! 7 per MVA solo
 else:
-   inputlist_n = pwd + '/InputPi0Alca_Short.txt'
-   isaGun      = 'False'
-   dirname     = 'NormaleAlca_02_noES'
-   useES       = 'True'
-   ijobmax     = 1
-   nInter      = 1000000
+   inputlist_n      = pwd + '/InputPi0Alca_Short.txt' #2012D
+   is2012           = True#!
+   dirname          = 'NormaleAlca_02_noES'
+   useES            = 'True'
+   isPi0            = False#!
+   ijobmax          = 1
+   nInter           = 1000000
 
 workdir  = pwd + '/' + dirname
 srcPath  = workdir + '/src/'
@@ -72,9 +64,7 @@ folderCreation.communicate()
 
 # open list of input files
 inputlist_f = open( inputlist_n )
-# read the list containing all the input files
 inputlistbase_v = inputlist_f.readlines()
-
 inputlist_v = inputlistbase_v[:]
 ijob=0
 # Creating different list for hadd
@@ -99,7 +89,7 @@ while (len(inputlist_v) > 0):
     # create CFG file
     fill_cfg_n = cfgPath + "config_" + str(ijob) + ".py"
     fill_cfg_f = open( fill_cfg_n, 'w' )
-    printFillCfg( Gamma_MVA, fill_cfg_f, str(ijob), workdir, isaGun, OnlyContCorr, str(nInter), useES, str(cuts4s9) )
+    printFillCfg( Gamma_MVA, fill_cfg_f, str(ijob), workdir, isGun, OnlyContCorr, str(nInter), useES, str(cuts4s9), isPi0 )
     # loop over the names of the input files to be put in a single cfg
     lastline = min(ijobmax,len(inputlist_v)) - 1
     for line in range(min(ijobmax,len(inputlist_v))):

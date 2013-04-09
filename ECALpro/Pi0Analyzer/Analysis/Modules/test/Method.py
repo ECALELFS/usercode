@@ -22,11 +22,18 @@ def printSubmitSrc(outputfile, cfgName, source1, source2, destination, OnlyContC
        outputfile.write("echo 'rm -f " + source1 + "'\n")
        outputfile.write("rm -f " + source1 + "\n")
 
-def printFillCfg( Gamma_MVA, outputfile, njob, outdir, isGun, OnlyContCorr, nInter, useES, cuts4s9):
+def printFillCfg( Gamma_MVA, outputfile, njob, outdir, isGun, OnlyContCorr, nInter, useES, cuts4s9, is2012, isPi0):
     outputfile.write("import FWCore.ParameterSet.Config as cms\n")
     outputfile.write("\n")
-    outputfile.write("isGun = " + isGun +" \n")
+    if isGun: outputfile.write("isGun = True \n")
+    else    : outputfile.write("isGun = False \n")
     outputfile.write("\n")
+    if(is2012 and !isGun):
+        outputfile.write('process.load("Configuration.Geometry.GeometryIdeal_cff")\n\n')
+    if(!is2012 and !isGun)::
+        outputfile.write('process.load("Configuration.StandardSequences.GeometryIdeal_cff")\n\n')
+    outputfile.write('process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")\n')
+    outputfile.write("process.GlobalTag.globaltag = '" + globaltag + "'\n")
     outputfile.write("if isGun:\n")
     outputfile.write("   correctHits = False\n")
     outputfile.write("   useHLTFilter = False\n")
@@ -42,14 +49,7 @@ def printFillCfg( Gamma_MVA, outputfile, njob, outdir, isGun, OnlyContCorr, nInt
     outputfile.write("if useHLTFilter:\n")
     outputfile.write("    print 'FILTERING PI0 EVENTS'\n")
     outputfile.write("\n")
-    outputfile.write("if useHLTFilter:\n")
-    outputfile.write("    import copy\n")
-    outputfile.write("    from HLTrigger.HLTfilters.hltHighLevel_cfi import *\n")
-    outputfile.write("    process.AlcaP0Filter = copy.deepcopy(hltHighLevel)\n")
-    outputfile.write("    process.AlcaP0Filter.throw = cms.bool(False)\n")
-    outputfile.write("    process.AlcaP0Filter.HLTPaths = ['AlCa_EcalPi0_*']\n")
-    outputfile.write("\n")
-    outputfile.write("import RecoLocalCalo.EcalRecProducers.ecalRecalibRecHit_cfi\n")
+    outputfile.write("import RecoLocalCalo.EcalRecProducers.ecalRecalibRecHit_cfi\n")    
     outputfile.write("\n")
     outputfile.write("from Geometry.CaloEventSetup.CaloTopology_cfi import *\n")
     outputfile.write("process.load('Configuration.StandardSequences.Services_cff')\n")
