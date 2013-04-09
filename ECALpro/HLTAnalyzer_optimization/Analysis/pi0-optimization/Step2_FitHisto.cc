@@ -63,19 +63,36 @@ FFitResult FitFit(TH1D* h,double xmin,double xmax,int eventi, int Name, FILE *fi
 void fitsb (bool isEB, bool Are_pi0_=true){
 
     TString input;
-    if(isEB) input="Step1_Alca2012B_EB.root";
-    else     input="Step1_Alca2012B_EE.root";
-
+    if(isEB){
+	  input="Step1_Alca2012B_EB.root";
+	  if(!Are_pi0_) input="Step1_EB_eta.root";
+    }
+    else{
+	  input="Step1_Alca2012B_EE.root";
+	  if(!Are_pi0_) input="Step1_EE_eta.root";
+    }
     TFile *f1 = new TFile(input.Data(),"r");
     TH2F *histo=(TH2F*)f1->Get("hmass");
     TH2F *histo_tot=(TH2F*)f1->Get("hmass_tot");
-    if(isEB) input="Step2_Alca2012B_EB.root";
-    else     input="Step2_Alca2012B_EE.root";
+    if(isEB){
+	  input="Step2_EB.root";
+	  if(!Are_pi0_) input="Step2_EB_eta.root";
+    }
+    else{
+	  input="Step2_EE.root";
+	  if(!Are_pi0_) input="Step2_EE_eta.root";
+    }
     TFile* outPut = new TFile(input.Data(),"RECREATE");
     outPut->cd();
     FILE *file_txt;
-    if(isEB) input="Value_notSorted_EB.txt";
-    else     input="Value_notSorted_EE.txt";
+    if(isEB){
+	  input="Value_notSorted_EB.txt";
+	  if(!Are_pi0_) input="Value_notSorted_EB_eta.txt";
+    }
+    else    {
+	  input="Value_notSorted_EE.txt";
+	  if(!Are_pi0_) input="Value_notSorted_EE_eta.txt";
+    }
     file_txt=fopen(input.Data(),"w");
     cout << "Now starting the Fit procedure ..." << endl;
 
@@ -92,19 +109,19 @@ void fitsb (bool isEB, bool Are_pi0_=true){
 	  int iMin(0);
 	  int iMax(0);
 	  if(Are_pi0_){ 
-	    iMin = h1->GetXaxis()->FindBin(0.08);
-	    iMax = h1->GetXaxis()->FindBin(0.18);
+		iMin = h1->GetXaxis()->FindBin(0.08);
+		iMax = h1->GetXaxis()->FindBin(0.18);
 	  }
 	  else{
-	    iMin = h1->GetXaxis()->FindBin(0.4);
-	    iMax = h1->GetXaxis()->FindBin(0.7);
+		iMin = h1->GetXaxis()->FindBin(0.4);
+		iMax = h1->GetXaxis()->FindBin(0.7);
 	  }
 	  double integral = h1->Integral(iMin, iMax);
 	  float eff =  (float)Nentr/(float)Nentr_tot;
-cout<<"EFF "<<eff<<"  "<<Nentr<<"  "<<Nentr_tot<<endl;
+	  cout<<"EFF "<<eff<<"  "<<Nentr<<"  "<<Nentr_tot<<endl;
 	  if(eff>0.15){
-	    FFitResult res;
-	    res = FitFit(h1, xmin, xmax, Nentr, i, file_txt, eff, Are_pi0_);
+		FFitResult res;
+		res = FitFit(h1, xmin, xmax, Nentr, i, file_txt, eff, Are_pi0_);
 	  }
     }
 
@@ -209,7 +226,7 @@ FFitResult FitFit(TH1D* h,double xmin, double xmax,int eventi, int Name, FILE *f
     lat.DrawLatex(Xmin,Yhi-3.*Ypass, line);
 
     if( xframe->chiSquare()/risultato.dof<4 ) 
-        fprintf(file_txt,"BIN %i  SB %.5f  MuSi %.5f  CHI %.5f  Eff %.5f \n", Name, risultato.S/risultato.B, mean.getError()/mean.getVal(), risultato.chi2/risultato.dof, eff );
+	  fprintf(file_txt,"BIN %i  SB %.5f  MuSi %.5f  CHI %.5f  Eff %.5f \n", Name, risultato.S/risultato.B, mean.getError()/mean.getVal(), risultato.chi2/risultato.dof, eff );
 
     myc1->Write();
     delete myc1;

@@ -50,7 +50,7 @@
 
 using namespace std;
 
-int faisto2011 ( bool isEB, bool isPi0=true ){
+int Make2DHisto( bool isEB, bool isPi0=true ){
 
     if(isEB)  cout<<"Running on Barrel"<<endl;
     else      cout<<"Running on Endcap"<<endl;
@@ -60,14 +60,20 @@ int faisto2011 ( bool isEB, bool isPi0=true ){
     //File
     FILE *file_txt;
     TString name_txt;
-    if(isEB)  name_txt = "BIN_cut_EB.txt";
-    else      name_txt = "BIN_cut_EE.txt";
+    if(isEB){
+	  name_txt = "BIN_cut_EB.txt";
+	  if(!isPi0) name_txt = "BIN_cut_EB_eta.txt";
+    }
+    else{
+	  name_txt = "BIN_cut_EE.txt";
+	  if(!isPi0) name_txt = "BIN_cut_EE_eta.txt";
+    }
     file_txt=fopen(name_txt.Data(),"w");
     //TTree
-    //TChain *tree = new TChain("Tree_HLT","Output TTree");
     TChain *tree = new TChain("tree_opt","Output TTree");
     //tree->Add("root://eoscms//eos/cms/store/group/alca_ecalcalib/lpernie/2012_Pi0_newTree01.root");
-    tree->Add("root://eoscms//eos/cms/store/group/alca_ecalcalib/lpernie/ETA_optimization.root");
+    tree->Add("root://eoscms//eos/cms/store/caf/user/lpernie/ANALYZ_RunD_Eta_03/LocalPi0Alca_0.root");
+    tree->Add("root://eoscms//eos/cms/store/caf/user/lpernie/ANALYZ_RunD_Eta_03/LocalPi0Alca_1.root");
     Int_t event = tree->GetEntries();
     cout << "Number of events in tree: " << event << endl;
     //Check TTree
@@ -83,8 +89,14 @@ int faisto2011 ( bool isEB, bool isPi0=true ){
     }
 
     TString nameOutput;
-    if(isEB) nameOutput="Step1_Alca2012B_EB.root";
-    else      nameOutput="Step1_Alca2012B_EE.root";
+    if(isEB){
+	  nameOutput="Step1_EB.root";
+	  if(!isPi0) nameOutput="Step1_EB_eta.root";
+    }
+    else{
+	  nameOutput="Step1_EE.root";
+	  if(!isPi0) nameOutput="Step1_EE_eta.root";
+    }
     TFile* cartella = new TFile(nameOutput.Data(),"RECREATE");
     //**************DICHIARAZIONE VARIABILI*********//  
     Int_t npi;
@@ -120,12 +132,6 @@ int faisto2011 ( bool isEB, bool isPi0=true ){
     Float_t s4s9_2[NPI0MAX];
     tree->SetBranchAddress("STr2_S4S9_2",&s4s9_2);
 
-    //definisco gli istogrammi
-    //Int_t nhisto =10001;
-    //char cha[nhisto];
-    //char tag[nhisto];
-
-    //riempio vettori tagli
     //Nxtal 1
     vector <Int_t> ncri1cut;
     for(Int_t j=4;j<9;j++) ncri1cut.push_back(j);
@@ -133,8 +139,8 @@ int faisto2011 ( bool isEB, bool isPi0=true ){
     vector <Int_t> ncri2cut;
     for(Int_t j=4;j<7;j++) ncri2cut.push_back(j);
     //Pt_clus
-    Double_t pcs=isPi0?0.4:0.7;
-    Double_t pcf=isPi0?1.0:1.3;
+    Double_t pcs=isPi0?0.4:1.0;
+    Double_t pcf=isPi0?1.0:1.6;
     Double_t pcp=0.2;
     vector <Float_t> ptclucut;
     for(Double_t j=pcs;j<=pcf;j+=pcp) ptclucut.push_back(j);
@@ -207,18 +213,18 @@ int faisto2011 ( bool isEB, bool isPi0=true ){
 					  for(unsigned q=0; q<isocut.size();q++ ){
 						for(unsigned z=0; z<ptPi0cut.size();z++ ){ 
 
-//if(iseb[jj]==EB_EE){
-//cout<<endl;
-//if( ncris1[jj]>ncri1cut[i] && ncris2[jj]>ncri2cut[j] ) cout<<"0 ";
-//if( ptclu1[jj]>ptclucut[k] && ptclu2[jj]>ptclucut[k] ) cout<<" 1 ";
-//if( ptpi0[jj]>ptPi0cut[z] ) cout<<" 2 ";
-//if(s4s9_1[jj]>s4s9cut[s] && s4s9_2[jj]>s4s9cut[s] ) cout<<" 3 ";
-//if( iso[jj]>isocut[q] ) cout<<" 4 ";
-//if( ( (E_Es_e1_1[jj]+E_Es_e2_1[jj])>elayercut[h] || iseb[jj]==1) && ((E_Es_e1_2[jj]+E_Es_e2_2[jj])>elayercut[h] || iseb[jj]==1) ) cout<<" 5 ";
-//}
+						    //if(iseb[jj]==EB_EE){
+						    //cout<<endl;
+						    //if( ncris1[jj]>ncri1cut[i] && ncris2[jj]>ncri2cut[j] ) cout<<"0 ";
+						    //if( ptclu1[jj]>ptclucut[k] && ptclu2[jj]>ptclucut[k] ) cout<<" 1 ";
+						    //if( ptpi0[jj]>ptPi0cut[z] ) cout<<" 2 ";
+						    //if(s4s9_1[jj]>s4s9cut[s] && s4s9_2[jj]>s4s9cut[s] ) cout<<" 3 ";
+						    //if( iso[jj]>isocut[q] ) cout<<" 4 ";
+						    //if( ( (E_Es_e1_1[jj]+E_Es_e2_1[jj])>elayercut[h] || iseb[jj]==1) && ((E_Es_e1_2[jj]+E_Es_e2_2[jj])>elayercut[h] || iseb[jj]==1) ) cout<<" 5 ";
+						    //}
 
 						    if( iseb[jj]==EB_EE && ncris1[jj]>ncri1cut[i] && ncris2[jj]>ncri2cut[j] && ptclu1[jj]>ptclucut[k] && ptclu2[jj]>ptclucut[k] && ptpi0[jj]>ptPi0cut[z]
-								&& /*s4s9_1[jj]>s4s9cut[s] && s4s9_2[jj]>s4s9cut[s] &&*/ iso[jj]>isocut[q] && ( (E_Es_e1_1[jj]+E_Es_e2_1[jj])>elayercut[h] || iseb[jj]==1) && ((E_Es_e1_2[jj]+E_Es_e2_2[jj])>elayercut[h] || iseb[jj]==1) ){
+								&& s4s9_1[jj]>s4s9cut[s] && s4s9_2[jj]>s4s9cut[s] && iso[jj]>isocut[q] && ( (E_Es_e1_1[jj]+E_Es_e2_1[jj])>elayercut[h] || iseb[jj]==1) && ((E_Es_e1_2[jj]+E_Es_e2_2[jj])>elayercut[h] || iseb[jj]==1) ){
 							  hmass->Fill( binTrue+1, massPi0[jj] );
 						    }
 						    if( iseb[jj]==EB_EE ) hmass_tot->Fill( binTrue+1, massPi0[jj] );
