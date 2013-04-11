@@ -1,39 +1,29 @@
-def printSubmitSrc(outputfile, cfgName, source1, source2, destination, OnlyContCorr, pwd, isGun):
+def printSubmitSrc(outputfile, cfgName, source1, source2, destination, OnlyContCorr, pwd):
     outputfile.write("#!/bin/bash\n")
     outputfile.write("cd " + pwd + "\n")
     outputfile.write("export SCRAM_ARCH=slc5_amd64_gcc434\n")
     outputfile.write("eval `scramv1 runtime -sh`\n")
     outputfile.write("echo 'cmsRun " + cfgName + "'\n")
     outputfile.write("cmsRun " + cfgName + "\n")
-    if(isGun):
-       if(OnlyContCorr):
-            outputfile.write("echo 'cmsStage -f " + source2 + " " + destination + "'\n")
-            outputfile.write("cmsStage -f " + source2 + " " + destination + "\n")
-            outputfile.write("echo 'rm -f " + source2 + "'\n")
-            outputfile.write("rm -f " + source2 + "\n")
-       else:
-            outputfile.write("echo 'cmsStage -f " + source1 + " " + destination + "'\n")
-            outputfile.write("cmsStage -f " + source1 + " " + destination + "\n")
-            outputfile.write("echo 'rm -f " + source1 + "'\n")
-            outputfile.write("rm -f " + source1 + "\n")
+    if(OnlyContCorr):
+         outputfile.write("echo 'cmsStage -f " + source2 + " " + destination + "'\n")
+         outputfile.write("cmsStage -f " + source2 + " " + destination + "\n")
+         outputfile.write("echo 'rm -f " + source2 + "'\n")
+         outputfile.write("rm -f " + source2 + "\n")
     else:
-       outputfile.write("echo 'cmsStage -f " + source1 + " " + destination + "'\n")
-       outputfile.write("cmsStage -f " + source1 + " " + destination + "\n")
-       outputfile.write("echo 'rm -f " + source1 + "'\n")
-       outputfile.write("rm -f " + source1 + "\n")
+         outputfile.write("echo 'cmsStage -f " + source1 + " " + destination + "'\n")
+         outputfile.write("cmsStage -f " + source1 + " " + destination + "\n")
+         outputfile.write("echo 'rm -f " + source1 + "'\n")
+         outputfile.write("rm -f " + source1 + "\n")
 
-def printFillCfg( Gamma_MVA, outputfile, njob, outdir, isGun, OnlyContCorr, nInter, useES, cuts4s9, is2012, isPi0):
+def printFillCfg( Gamma_MVA, outputfile, njob, outdir, OnlyContCorr, nInter, useES, cuts4s9):
     outputfile.write("import FWCore.ParameterSet.Config as cms\n")
     outputfile.write("\n")
-    if isGun: outputfile.write("isGun = True \n")
-    else    : outputfile.write("isGun = False \n")
+    outputfile.write("isGun = True \n")
     outputfile.write("\n")
-    if(is2012 and !isGun):
-        outputfile.write('process.load("Configuration.Geometry.GeometryIdeal_cff")\n\n')
-    if(!is2012 and !isGun)::
-        outputfile.write('process.load("Configuration.StandardSequences.GeometryIdeal_cff")\n\n')
+    outputfile.write("process = cms.Process('PI0DUMPERGUN')\n")
     outputfile.write('process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")\n')
-    outputfile.write("process.GlobalTag.globaltag = '" + globaltag + "'\n")
+    outputfile.write("process.GlobalTag.globaltag = 'GR_R_42_V21B::All'\n")
     outputfile.write("if isGun:\n")
     outputfile.write("   correctHits = False\n")
     outputfile.write("   useHLTFilter = False\n")
@@ -64,7 +54,6 @@ def printFillCfg( Gamma_MVA, outputfile, njob, outdir, isGun, OnlyContCorr, nInt
     outputfile.write("process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')\n")
     outputfile.write("\n")
     outputfile.write("#load transparency loss\n")
-    outputfile.write("process.GlobalTag.globaltag = 'GR_R_42_V21B::All'\n")
     outputfile.write("\n")
     outputfile.write("process.options = cms.untracked.PSet( \n")
     outputfile.write("    wantSummary = cms.untracked.bool(False),\n")
