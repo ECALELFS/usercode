@@ -16,7 +16,7 @@ def printSubmitSrc(outputfile, cfgName, source1, source2, destination, OnlyContC
          outputfile.write("echo 'rm -f " + source1 + "'\n")
          outputfile.write("rm -f " + source1 + "\n")
 
-def printFillCfg( Gamma_MVA, outputfile, njob, outdir, OnlyContCorr, nInter, useES, cuts4s9):
+def printFillCfg( Gamma_MVA, outputfile, njob, outdir, OnlyContCorr, nInter, useES, cuts4s9, Are_pi0):
     outputfile.write("import FWCore.ParameterSet.Config as cms\n")
     outputfile.write("\n")
     outputfile.write("isGun = True \n")
@@ -104,6 +104,8 @@ def printFillCfg( Gamma_MVA, outputfile, njob, outdir, OnlyContCorr, nInter, use
     outputfile.write("process." + GunName  + ".s1CluCut = 0.35\n")
     outputfile.write("process." + GunName  + ".ptCluCut = 0.35\n")
     outputfile.write("process." + GunName  + ".s4s9CluCut = " + cuts4s9 + "\n")
+    outputfile.write("process." + GunName  + ".Are_pi0 = cms.untracked.bool(" + Are_pi0 + ")\n")
+    outputfile.write("process." + GunName  + ".HLTResults = cms.untracked.bool(False)\n")
     outputfile.write("process." + GunName  + ".DoOffGeom = cms.untracked.bool(False)\n")
     outputfile.write("process." + GunName  + ".StoreTransparencyCorrection = cms.untracked.bool(True)\n")
     outputfile.write("### choosing proper input tag (recalibration module changes the collection names)\n")
