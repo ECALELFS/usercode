@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  Wed Aug 25 10:44:55 CEST 2010
-// $Id: NewPi0Dumper_Gun.cc,v 1.1 2013/02/04 13:18:49 lpernie Exp $
+// $Id: NewPi0Dumper_Gun.cc,v 1.2 2013/04/09 13:09:25 lpernie Exp $
 //
 //
 
@@ -159,8 +159,7 @@ using std::set;
 #define N_iPHI 360
 //#define CHECKIETACORR
 //#define INDEXETA65
-//#define TTREEMVA
-//#define DEBUGMVA
+#define TTREEMVA
 
 //Function
 double max_array(double *A, int n);
@@ -509,9 +508,6 @@ class NewPi0Dumper_Gun : public edm::EDAnalyzer {
 
 	  // mc truth
 	  static const int nMaxMC = 350;
-	  static const int kPhoton = 22;
-	  static const int kPi0 = 111;
-	  static const int kElectron = 11;
 	  Float_t STr_pi0_x;
 	  Float_t STr_pi0_y;
 	  Float_t STr_pi0_z;
@@ -1513,6 +1509,7 @@ NewPi0Dumper_Gun::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(EB_HLT){
 
 	  make3x3Clusters<EBDetId,EBRecHitCollection,EBRecHitCollection::const_iterator>(geometry, hits, &clusters, &shapes, iEvent.time(), &Ncristal_EB, &s4s9_EB, &s1s9_EB, &s2s9_EB, &EtSeed_EB);
+
 	  if( Ncristal_EB.size() != s4s9_EB.size() || clusters.size() != s2s9_EB.size() || Ncristal_EB.size() != clusters.size() ) cout<<"WARNING size EB"<<endl;
 	  // keep track of clusters used to make pi0 candidates
 	  std::map<size_t,size_t> savedCluEB;
@@ -1721,7 +1718,7 @@ NewPi0Dumper_Gun::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     if( Allclusters.size()!=AllCristal.size() || Allclusters.size()!=s4s9_all.size() || Allclusters.size()!=s1s9_all.size() || Allclusters.size()!=s2s9_all.size() )
 	  cout<<"WARNING: -> ALL Variables size. Clu: "<<Allclusters.size()<<" xtal: "<<AllCristal.size()<<" S4: "<<s4s9_all.size()<<" S1: "<<s1s9_all.size()<<" S2: "<<s2s9_all.size()<<endl;
-
+cout<<"Allclusters "<<Allclusters.size()<<" "<<AllCristal.size()<<" "<<s4s9_all.size()<<endl;//##
     if(storeMCTruth_ && gamma1.IsGoodPi0) AssociateGamma(Allclusters, AllCristal, s4s9_all, s1s9_all, s2s9_all);
 
     //No needs to go on if you need just MVA
@@ -2763,15 +2760,15 @@ void NewPi0Dumper_Gun::FillMCInfo(const edm::Event& iEvent, const edm::EventSetu
 
     int p_count(0);
     int motherIDMC_temp = -1;
+    int parId= Are_pi0_? 111:221;
 
     for (GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++p, ++p_count) 
     {
-	  if( p->pdgId()!=111 ) cout<<"ID: "<<p->pdgId()<<endl;
+	  if( p->pdgId()!=parId ) cout<<"ID: "<<p->pdgId()<<endl;
 	  if ( nMC >= (nMaxMC-1) ) continue;
 
 	  // looking for mother particle
 	  motherIDMC_temp = -1;
-	  //where_is_pi0_mother = -1; // debug
 	  if (p->numberOfMothers() > 0) 
 	  {
 		const Candidate * mom = p->mother();
@@ -2781,8 +2778,6 @@ void NewPi0Dumper_Gun::FillMCInfo(const edm::Event& iEvent, const edm::EventSetu
 		    if (mom==ref)
 		    {
 			  motherIDMC_temp = j; 
-			  //if(mom->pdgId()==kPi0)//debug
-			  //   where_is_pi0_mother = j; // debug
 		    }
 		}
 	  } 
@@ -2807,7 +2802,7 @@ void NewPi0Dumper_Gun::FillMCInfo(const edm::Event& iEvent, const edm::EventSetu
 		++nMC; 
 
 		// if stable photon/electron, find parent
-		if (p->status() == 1 && motherIDMC_temp != -1 && (p->pdgId() == kPhoton || fabs(p->pdgId()) == kElectron ) ) //|| p->pdgId() == 221)) // 221=eta0 
+		if (p->status() == 1 && motherIDMC_temp != -1 && (p->pdgId() == 22 || fabs(p->pdgId()) == 11 ) ) //|| p->pdgId() == 221)) // 221=eta0 
 		{
 		    cout<<" if stable photon/electron, find parent "<<endl;
 		    const GenParticle *mom = (const GenParticle*)p->mother();
@@ -2915,17 +2910,17 @@ void NewPi0Dumper_Gun::FillMCInfo(const edm::Event& iEvent, const edm::EventSetu
 		if( !vtx.noParent() )
 		{
 		    //cout<<"Type: "<<iSim->type()<<" parents "<<promptALLParent[&(*iSim)]->type()<<endl;
-		    if( iSim->type()==11  && promptALLParent[&(*iSim)]->type()==111 && num<5 )  OneEle++;
-		    if( iSim->type()==-11 && promptALLParent[&(*iSim)]->type()==111 && num<5 )  TwoEle++;
-		    if( iSim->type()==22  && promptALLParent[&(*iSim)]->type()==111 && num<5 )  TheGamma++;
+		    if( iSim->type()==11  && promptALLParent[&(*iSim)]->type()==parId && num<5 )  OneEle++;
+		    if( iSim->type()==-11 && promptALLParent[&(*iSim)]->type()==parId && num<5 )  TwoEle++;
+		    if( iSim->type()==22  && promptALLParent[&(*iSim)]->type()==parId && num<5 )  TheGamma++;
 
-		    if( iSim->type()==22 && promptALLParent[&(*iSim)]->type()==111 && num==1){
+		    if( iSim->type()==22 && promptALLParent[&(*iSim)]->type()==parId && num==1){
 			  pi0_pos.SetXYZ(promptALLVertex[&(*iSim)]->position().x(),promptALLVertex[&(*iSim)]->position().y(),promptALLVertex[&(*iSim)]->position().z());
 			  ConversionPi0_rho[nP0] = promptALLVertex[&(*iSim)]->position().Rho(); ConversionPi0_z[nP0] = promptALLVertex[&(*iSim)]->position().z();
 			  ga1.SetXYZ(iSim->momentum().x(),iSim->momentum().y(),iSim->momentum().z());
 			  IdGamma1 = iSim->trackId();
 		    }
-		    if( iSim->type()==22 && promptALLParent[&(*iSim)]->type()==111 && num==2){
+		    if( iSim->type()==22 && promptALLParent[&(*iSim)]->type()==parId && num==2){
 			  ga2.SetXYZ(iSim->momentum().x(),iSim->momentum().y(),iSim->momentum().z());
 			  STr_pi0_x = pi0_pos.X(); STr_pi0_z = pi0_pos.Z(); STr_pi0_z = pi0_pos.Z(); STr_pi0_eta = pi0_pos.Eta(); STr_pi0_phi = pi0_pos.Phi();
 			  IdGamma2 = iSim->trackId();
@@ -2933,8 +2928,8 @@ void NewPi0Dumper_Gun::FillMCInfo(const edm::Event& iEvent, const edm::EventSetu
 		    }
 		    if( iSim->type()==11 && promptALLParent[&(*iSim)]->type()==22 && (promptALLParent[&(*iSim)]->trackId()==IdGamma1 || promptALLParent[&(*iSim)]->trackId()==IdGamma2 ) ){
 			  SimVertex const& vtxgamma = (*simVertices)[ promptALLParent[&(*iSim)]->vertIndex() ];
-			  if( !vtxgamma.noParent() && promptALLParent[ promptALLParent[&(*iSim)] ]->type()==111 ){           
-				if(promptALLParent[&(*iSim)]->trackId()==IdGamma1){       
+			  if( !vtxgamma.noParent() && promptALLParent[ promptALLParent[&(*iSim)] ]->type()==parId ){           
+				if(promptALLParent[&(*iSim)]->trackId()==IdGamma1){
 				    ConversionG1_x[nGamma1] = promptALLVertex[&(*iSim)]->position().x();
 				    ConversionG1_y[nGamma1] = promptALLVertex[&(*iSim)]->position().y();
 				    ConversionG1_rho[nGamma1] = promptALLVertex[&(*iSim)]->position().Rho();
@@ -2956,7 +2951,7 @@ void NewPi0Dumper_Gun::FillMCInfo(const edm::Event& iEvent, const edm::EventSetu
 
     if( OneEle==1 && TwoEle==1 && TheGamma>0 ){eeg++;}
     if( OneEle==2 && TwoEle==2){ eeee++;}
-    if( TheGamma==0 ){ cout<<"No Gamma from Pi0"<<endl;}
+    if( TheGamma==0 && Are_pi0_ ){ cout<<"No Gamma from Pi0"<<endl;}
     Tot_Ev++;
     //Fill for unconverted
     if(!isValid) cout<<"SimTrack not valid"<<endl;
@@ -3065,32 +3060,13 @@ void NewPi0Dumper_Gun::FillMCInfo(const edm::Event& iEvent, const edm::EventSetu
 		decayedGens[iSim->first] = iGen;
 	  }
     } // for chainParents 
-    /*
-    // Save the decay products of the long-lived particles
-    for (map<const GenParticle*, const SimTrack*>::const_iterator iGen = decayedSims.begin(); iGen != decayedSims.end(); ++iGen) 
-    {
-    const GenParticle *p = iGen->first;
-    if (p->pdgId()==310 || // K0s 
-    p->pdgId()==3122 || // Lambda
-    p->pdgId()==3322 || // Xi0 
-    p->pdgId()==111 || // Pi0 
-    p->pdgId()==221) // eta
-    {
-    bool saved = printChildren(decayedSims[p], promptDecays, promptVertex, 0, true, p->pdgId());
-    if (saved && mapMC.find(p)!=mapMC.end()) 
-    statusMC[mapMC[p]] *= -1;
-    } // decay prod
-    } // for iGen 
-     */
+
     /// Save conversions 
     for (map<const GenParticle*, const SimTrack*>::const_iterator iGen = decayedSims.begin(); iGen != decayedSims.end(); ++iGen) 
     {
-	  const GenParticle *p = iGen->first; //nel Pi0 Gun: SONO SOLO 111
-	  /// if the photon comes from pi0 or eta
-	  //if (p->pdgId()==22 && p->mother()->status()==2 && p->mother()->pdgId()==111) 
-
-	  if (p->pdgId()==22 && (p->mother()->pdgId()==111 ||  // pi0 
-			  p->mother()->pdgId()==221 ) ) // eta
+	  const GenParticle *p = iGen->first; //nel Pi0 Gun: SONO SOLO 111, eta 221
+	  // if the photon comes from pi0 or eta
+	  if (p->pdgId()==22 && (p->mother()->pdgId()==111 ||  p->mother()->pdgId()==221 ) ) // eta
 	  {
 		/// find the mother gen-particle index in the gen-particle vector
 		mapMC_it =  mapMC.find(p);

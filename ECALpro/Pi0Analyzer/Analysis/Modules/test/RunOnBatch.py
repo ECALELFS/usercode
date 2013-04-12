@@ -7,12 +7,13 @@ pwd          = os.getcwd()
 eosPath      = '/store/caf/user/lpernie'
 queue        = '8nh' #option: cmscaf1nd
 Gamma_MVA    = False
-OnlyContCorr = True #!
+OnlyContCorr = False #!
 nInter       = -1
 useES        = 'True'
 cuts4s9      = 0.7
+Are_pi0      = 'False'#!
 dirname      = 'Eta_MVA_01'#!
-inputlist_n   = pwd + '/InputEtaGun_group_short.txt' #! InputPi0Gun_group.txt/InputPi0Gun_group_short.txt InputEtaGun_group.txt/InputEtaGun_group_short.txt
+inputlist_n   = pwd + '/InputEtaGun_group.txt' #! InputPi0Gun_group.txt/InputPi0Gun_group_short.txt InputEtaGun_group.txt/InputEtaGun_group_short.txt
 
 if OnlyContCorr : 
    ijobmax       = 15
@@ -72,7 +73,7 @@ while (len(inputlist_v) > 0):
     # create CFG file
     fill_cfg_n = cfgPath + "config_" + str(ijob) + ".py"
     fill_cfg_f = open( fill_cfg_n, 'w' )
-    printFillCfg( Gamma_MVA, fill_cfg_f, str(ijob), workdir, OnlyContCorr, str(nInter), useES, str(cuts4s9) )
+    printFillCfg( Gamma_MVA, fill_cfg_f, str(ijob), workdir, OnlyContCorr, str(nInter), useES, str(cuts4s9), str(Are_pi0) )
     # loop over the names of the input files to be put in a single cfg
     lastline = min(ijobmax,len(inputlist_v)) - 1
     for line in range(min(ijobmax,len(inputlist_v))):
