@@ -61,9 +61,9 @@ void applyRegression(string applyingFile, TString weightFilename,string training
 
     //One or Two
     TString targ="", targ_name="";
-    if( weightFilename.Contains("Pi0_1") )      { cout<<"Running on Pi0 1"<<endl; targ = "target_1_tree"; targ_name = "target_1"; }
-    else if( weightFilename.Contains("Pi0_2") ) { cout<<"Running on Pi0 2"<<endl; targ = "target_2_tree"; targ_name = "target_2"; }
-    else                                        { cout<<"Running on GAMMA"<<endl; targ = "target_1_tree"; targ_name = "target_1"; }
+    if( weightFilename.Contains("Pi0_1") || weightFilename.Contains("Eta_1") )      { cout<<"Running on gamma 1"<<endl; targ = "target_1_tree"; targ_name = "target_1"; }
+    else if( weightFilename.Contains("Pi0_2") || weightFilename.Contains("Eta_2") ) { cout<<"Running on gamma 2"<<endl; targ = "target_2_tree"; targ_name = "target_2"; }
+    else                                                                            { cout<<"Running on GAMMA"<<endl; targ = "target_1_tree"; targ_name = "target_1"; }
 
     intree->LoadTree(0);
     TTree *intree_eb = gbrapply.ApplyAsFriend(intree, forest_eb_correction, *varseb, targ_name.Data());
