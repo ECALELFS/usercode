@@ -1,7 +1,6 @@
 #!/bin/bash
-cd /afs/cern.ch/work/l/lpernie/pi0/MVA/JoshMVA/CMSSW_5_3_0/src/
+cd /afs/cern.ch/work/l/lpernie/ECALpro/CMSSW_5_3_0/src/
 export SCRAM_ARCH=slc5_amd64_gcc462
 eval `scramv1 runtime -sh`
-cd UserCode/CITHZZ/LeptonScaleAndResolution/Electrons
-echo 'root -l -q -b trainPi0.C+( "MVA_EtPi0_training.root","weights_Pi0_1/weight_Mediumtrain_EtPi0.root",100,1,"EB" )'
-root -l -q -b trainPi0.C+'( "MVA_EtPi0_training.root","weights_Pi0_1/weight_Mediumtrain_EtPi0.root",100,1,"EB" )'
+cd mva_regression
+root -l -q -b trainPi0.C+'( "MVA_ETA_training.root","weights_Eta_1/weight_asPi0_EB.root",100,1,"EB", false )'

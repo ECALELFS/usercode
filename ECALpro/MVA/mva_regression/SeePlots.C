@@ -36,49 +36,6 @@ void SeePlots(TString NameWeightTest, TString NameWeight ){
 
     using namespace std;
 
-//   bool foundIt=true;
-// gSystem->Load( "libFWCoreFWLite" );
-//   // see if CMSSW has been setup
-//   const char *cmsbase=gSystem->Getenv("CMSSW_BASE");
-//   TString FWLiteLib = "";
-//   if (cmsbase==NULL) {
-//     cout << " CMSSW environment has not been setup -- "
-//	  << " FWLite libraries will not be loaded\n" << endl;
-//     foundIt=false;
-//   } else {
-//     cout << " CMSSW environment has been setup \n" << endl;
-//
-//     const char *search=gSystem->Getenv("LD_LIBRARY_PATH");
-//     string cms_path = search;
-//     
-//     FWLiteLib = "libFWCoreFWLite.so";
-//     const char* foundlib =gSystem->Which(search, FWLiteLib, (EAccessMode)0);
-//     
-//     if (! foundlib) {
-//       FWLiteLib = "libPhysicsToolsFWLite.so";
-//       foundlib =gSystem->Which(search, FWLiteLib, (EAccessMode)0);
-//       if (! foundlib) {
-//	 cout << "Could not find any FWLite libraries to load " << endl;       
-//	 foundIt=false;
-//       }
-//     }
-//   }
-//   if (foundIt){
-//     //cout << "Loading: " << FWLiteLib << endl;
-//     gSystem->Load(FWLiteLib);
-//     AutoLibraryLoader::enable();
-//   }
-//    const Int_t NRGBs = 5;
-//    const Int_t NCont = 255;
-//
-//    Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
-//    Double_t red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 };
-//    Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 };
-//    Double_t blue[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 };
-//    TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
-//    gStyle->SetNumberContours(NCont);
-//}
-
     const Int_t NRGBs = 5;
     const Int_t NCont = 255;
 
@@ -96,9 +53,9 @@ void SeePlots(TString NameWeightTest, TString NameWeight ){
     bool GAMMA_GUN=false;
     TString Type = "";
     TString Friend = "";
-    if     ( NameWeight.Contains("Pi01") ) { Type = "1"; Friend = "target_1"; cout<<"Pi0 gamma 1"<<endl; }
-    else if( NameWeight.Contains("Pi02") ) { Type = "2"; Friend = "target_2"; cout<<"Pi0 gamma 2"<<endl; }
-    else                                   { Type = "1"; Friend = "target_1"; cout<<"Single Gamma"<<endl; GAMMA_GUN=true;}
+    if     ( NameWeight.Contains("Pi01") || NameWeight.Contains("Eta1") ) { Type = "1"; Friend = "target_1"; cout<<"Pi0 gamma 1"<<endl; }
+    else if( NameWeight.Contains("Pi02") || NameWeight.Contains("Eta2") ) { Type = "2"; Friend = "target_2"; cout<<"Pi0 gamma 2"<<endl; }
+    else                                                                  { Type = "1"; Friend = "target_1"; cout<<"Single Gamma"<<endl; GAMMA_GUN=true;}
 
     system( (string("mkdir -p ") + NameWeight).Data());
 
@@ -114,17 +71,16 @@ void SeePlots(TString NameWeightTest, TString NameWeight ){
 
     // Style
     myc1->cd();
-    //gStyle->SetPalette(1);
     gStyle->SetOptStat(1111);
 
     //MVA cuts
     TCut traincut;
-    if( !GAMMA_GUN && (Type == "1" || Type == "2") ) traincut = "MVA_E3x3_1>0.01 && MVA_E3x3_2>0.01 && MVA_Pt_1>1.4 && MVA_Pt_2>1.4 && MVA_S4S9_1>0.85 && MVA_S4S9_2>0.85";
+    if( !GAMMA_GUN && (Type == "1" || Type == "2") ) traincut = "MVA_E3x3_1>0.01 && MVA_E3x3_2>0.01 && MVA_Pt_1>1.4 && MVA_Pt_2>1.4 && MVA_S4S9_1>0.85 && MVA_S4S9_2>0.85 && MVA_Nxtal_1>6 && MVA_Nxtal_2>4";
     if( GAMMA_GUN )                                  traincut = "MVA_E3x3_1>0.01 && MVA_E3x3MC_1>0.01 && (MVA_E3x3MC_1/MVA_E3x3_1)<3.0 && MVA_Pt_1>0.55 && MVA_Nxtal_1>5 && MVA_S4S9_1>0.75";
 
     //Plots
     TString Output = NameWeight + "/" + mode + "_Risol_RedNoweight_BackWeight.png";
-/*    TH1F *h1 = new TH1F("h1","Risol [red no weight]",100,-1,1);
+    TH1F *h1 = new TH1F("h1","Risol [red no weight]",100,-1,1);
     Tree->Draw("(((MVA_E3x3_"+Type+"*"+Friend+")-MVA_E3x3MC_"+Type+")/MVA_E3x3MC_"+Type+")>>h1","((MVA_E3x3_"+Type+"*"+Friend+")-MVA_E3x3MC_"+Type+")/MVA_E3x3MC_"+Type+"<1 && "+ string(traincut) );
     TH1F *h2 = new TH1F("h2","Risol 2 [red no weight]",100,-1,1);
     Tree->Draw("((MVA_E3x3_"+Type+"-MVA_E3x3MC_"+Type+")/MVA_E3x3MC_"+Type+")>>h2","(MVA_E3x3_"+Type+"-MVA_E3x3MC_"+Type+")/MVA_E3x3MC_"+Type+"<1 && "+ string(traincut));
@@ -132,7 +88,7 @@ void SeePlots(TString NameWeightTest, TString NameWeight ){
     h1->Draw(); h2->SetLineColor(2); h2->Draw("SAMES");
     myc1->SaveAs(Output.Data());
     delete h1; delete h2;
-*/
+/*
     //TH2
     gStyle->SetOptStat(0);
     Output = NameWeight + "/" + mode + "_Risol_RedNoweight_BackWeight.png";
@@ -142,6 +98,7 @@ void SeePlots(TString NameWeightTest, TString NameWeight ){
     mva_phi_eta->Draw("colz");
     myc1->SaveAs(Output.Data());
     delete mva_phi_eta; 
+*/
 /*
     for(int j=0; j<2; j++){
 	  TString num = "";

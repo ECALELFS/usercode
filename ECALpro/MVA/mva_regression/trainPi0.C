@@ -10,11 +10,6 @@
 // trainingFile		= ntuple file on which to perform the training
 // outWeightFile	= output file, to which it will save the weights in a .root file
 // optionChar		= denotes which version of the training is being performed
-//
-// V00	no pT split	no tracker variables
-// V01	no pT split	includes tracker variables
-// V10	pT split	no tracker variables
-// V11	pT split	includes tracker variables
 //________________________________________________________________________________________________
 
 #include "TFile.h"
@@ -52,7 +47,7 @@ int GetTotalEvents(TChain *chain) {
 
 }
 
-void trainPi0(char* trainingFile, char* outWeightFile,  int nTrees, int nPi0, string type ) {
+void trainPi0(char* trainingFile, char* outWeightFile,  int nTrees, int nPi0, string type, bool isPi0 ) {
 
     GBRTrainer *train = new GBRTrainer;
 
@@ -76,7 +71,8 @@ void trainPi0(char* trainingFile, char* outWeightFile,  int nTrees, int nPi0, st
 
     if(type=="EB"){
 	  if(nPi0==1 || nPi0==2){
-		traincut = "(MVA_E3x3MC_1/MVA_E3x3_1)<3.0 && (MVA_E3x3MC_2/MVA_E3x3_2)<3.0 && MVA_E3x3_1>0.01 && MVA_E3x3MC_1>0.01 && MVA_E3x3_2>0.01 && MVA_E3x3MC_2>0.01 && MVA_Pt_1>1.0 && MVA_Pt_2>1.0 && MVA_S4S9_1>0.75 && MVA_S4S9_2>0.75";
+		if(isPi0) traincut = "(MVA_E3x3MC_1/MVA_E3x3_1)<3.0 && (MVA_E3x3MC_2/MVA_E3x3_2)<3.0 && MVA_E3x3_1>0.01 && MVA_E3x3MC_1>0.01 && MVA_E3x3_2>0.01 && MVA_E3x3MC_2>0.01 && MVA_Pt_1>1.0 && MVA_Pt_2>1.0 && MVA_S4S9_1>0.75 && MVA_S4S9_2>0.7";
+		else      traincut = "(MVA_E3x3MC_1/MVA_E3x3_1)<2.0 && (MVA_E3x3MC_2/MVA_E3x3_2)<2.0 && MVA_E3x3_1>0.01 && MVA_E3x3MC_1>0.01 && MVA_E3x3_2>0.01 && MVA_E3x3MC_2>0.01 && MVA_Pt_1>1.2 && MVA_Pt_2>1.2 && MVA_S4S9_1>0.85 && MVA_S4S9_2>0.85 && MVA_Nxtal_1>4 && MVA_Nxtal_2>3";
 		if(nPi0==1) cout<<"train on 1 gamma: cut "<<string(traincut)<<endl;
 		if(nPi0==2) cout<<"train on 2 gamma: cut "<<string(traincut)<<endl;
 
@@ -93,7 +89,7 @@ void trainPi0(char* trainingFile, char* outWeightFile,  int nTrees, int nPi0, st
     else if(type=="EE"){ 
 	  if(nPi0==1 || nPi0==2){
 		//traincut = "TMath::Abs(MVA_nEta_1)>1.656 && TMath::Abs(MVA_nEta_1)<2.59";
-		traincut = "(MVA_E3x3MC_1/MVA_E3x3_1)<3.0 && (MVA_E3x3MC_2/MVA_E3x3_2)<3.0 && MVA_E3x3_1>0.01 && MVA_E3x3MC_1>0.01 && MVA_E3x3_2>0.01 && MVA_Nxtal_1>7 && MVA_Nxtal_2>4 && MVA_E3x3MC_2>0.01 && MVA_Pt_1>0.5 && MVA_Pt_2>0.5 && MVA_S4S9_1>0.8 && MVA_S4S9_2>0.8 && MVA_EPi0>1.";
+		traincut = "TMath::Abs(MVA_nEta_1)>1.656 && TMath::Abs(MVA_nEta_1)<2.59 && (MVA_E3x3MC_1/MVA_E3x3_1)<3.0 && (MVA_E3x3MC_2/MVA_E3x3_2)<3.0 && MVA_E3x3_1>0.01 && MVA_E3x3MC_1>0.01 && MVA_E3x3_2>0.01 && MVA_Nxtal_1>6 && MVA_Nxtal_2>5 && MVA_E3x3MC_2>0.01 && MVA_Pt_1>0.5 && MVA_Pt_2>0.5 && MVA_S4S9_1>0.8 && MVA_S4S9_2>0.8 && MVA_EPi0>1.5";
 		if(nPi0==1) cout<<"train on 1 gamma: cut "<<string(traincut)<<endl;
 		if(nPi0==2) cout<<"train on 2 gamma: cut "<<string(traincut)<<endl;
 
@@ -174,18 +170,19 @@ void trainPi0(char* trainingFile, char* outWeightFile,  int nTrees, int nPi0, st
     }
     else if(type=="EE"){
 	  if(nPi0==1){
-		varsf->push_back("MVA_EPi0");
-		varsf->push_back("MVA_E3x3_1/MVA_EPi0");
+//		varsf->push_back("MVA_EPi0");
+//		varsf->push_back("MVA_E3x3_1/MVA_EPi0");
 //		varsf->push_back("MVA_E3x3_1/MVA_E3x3_2");
 		varsf->push_back("MVA_Pt_1");
 		varsf->push_back("MVA_Nxtal_1");
 		varsf->push_back("MVA_Nxtal_2");
-		varsf->push_back("MVA_S4S9_1");
-		varsf->push_back("MVA_S1S9_1");
-		varsf->push_back("MVA_S2S9_1");
+		//varsf->push_back("MVA_S4S9_1");
+		//varsf->push_back("MVA_S1S9_1");
+		//varsf->push_back("MVA_S2S9_1");
 //		varsf->push_back("MVA_ES1_1");
 //		varsf->push_back("MVA_ES2_1");
-		varsf->push_back("(MVA_ES1_1+MVA_ES2_1)/MVA_E3x3_1");
+		//#varsf->push_back("(MVA_ES1_1+MVA_ES2_1)/MVA_E3x3_1");
+		varsf->push_back("(MVA_ES1_1+MVA_ES2_1)");
 		//varsf->push_back("MVA_nEta_1");
 		//varsf->push_back("MVA_nPhi_1");
 		//varsf->push_back("MVA_iX_1");
@@ -195,18 +192,19 @@ void trainPi0(char* trainingFile, char* outWeightFile,  int nTrees, int nPi0, st
 		//varsf->push_back("sqrt( pow(MVA_iX_1-MVA_iX_2,2) + pow(MVA_iY_1-MVA_iY_2,2))");
 	  }
 	  if(nPi0==2){
-		varsf->push_back("MVA_EPi0");
-		varsf->push_back("MVA_E3x3_2/MVA_EPi0");
+//		varsf->push_back("MVA_EPi0");
+//		varsf->push_back("MVA_E3x3_2/MVA_EPi0");
 //		varsf->push_back("MVA_E3x3_1/MVA_E3x3_2");
 		varsf->push_back("MVA_Pt_2");
 		varsf->push_back("MVA_Nxtal_1");
 		varsf->push_back("MVA_Nxtal_2");
-		varsf->push_back("MVA_S4S9_2");
-		varsf->push_back("MVA_S1S9_2");
-		varsf->push_back("MVA_S2S9_2");
+		//varsf->push_back("MVA_S4S9_2");
+		//varsf->push_back("MVA_S1S9_2");
+		//varsf->push_back("MVA_S2S9_2");
 //		varsf->push_back("MVA_ES1_2");
 //		varsf->push_back("MVA_ES2_2");
-		varsf->push_back("(MVA_ES1_2+MVA_ES2_2)/MVA_E3x3_2");
+		//varsf->push_back("(MVA_ES1_2+MVA_ES2_2)/MVA_E3x3_2");
+		varsf->push_back("(MVA_ES1_2+MVA_ES2_2)");
 		//varsf->push_back("MVA_nEta_2");
 		//varsf->push_back("MVA_nPhi_2");
 		//varsf->push_back("MVA_iX_2");

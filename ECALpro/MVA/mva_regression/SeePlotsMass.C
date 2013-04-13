@@ -29,15 +29,15 @@
 #include "TLine.h"
 #include "TCut.h"
 
-void SeePlotsMass(TString NameWeightTest, TString NameWeight1, TString NameWeight2 ){
+void SeePlotsMass(TString NameWeightTest, TString NameWeight1, TString NameWeight2 ,bool isEta){
 
     using namespace std;
 
     TCanvas* myc1 = new TCanvas("myc1", "CMS", 600, 600);
-    TH1F *h_m = new TH1F("Pi0 Mass","Pi0 Mass",100,0.01,0.3);
-    TH1F *h_m_corr = new TH1F("Pi0 Mass Corr","Pi0 Mass Corr",100,0.01,0.3);
-    TH1F *h_m_corr1 = new TH1F("Pi0 Mass Corr (1)","Pi0 Mass Corr (1)",100,0.01,0.3);
-    TH1F *h_m_corr2 = new TH1F("Pi0 Mass Corr (2)","Pi0 Mass Corr (2)",100,0.01,0.3);
+    TH1F *h_m = new TH1F("Pi0 Mass","Pi0 Mass",100,isEta?0.01:0.3,isEta?0.3:0.8);
+    TH1F *h_m_corr = new TH1F("Pi0 Mass Corr","Pi0 Mass Corr",100,isEta?0.01:0.3,isEta?0.3:0.8);
+    TH1F *h_m_corr1 = new TH1F("Pi0 Mass Corr (1)","Pi0 Mass Corr (1)",100,isEta?0.01:0.3,isEta?0.3:0.8);
+    TH1F *h_m_corr2 = new TH1F("Pi0 Mass Corr (2)","Pi0 Mass Corr (2)",100,isEta?0.01:0.3,isEta?0.3:0.8);
     TLine *line = new TLine( 0.135, 0., 0.135, 100. );
     // Open Files, Create Output
 
