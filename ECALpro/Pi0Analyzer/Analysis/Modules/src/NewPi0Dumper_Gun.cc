@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  Wed Aug 25 10:44:55 CEST 2010
-// $Id: NewPi0Dumper_Gun.cc,v 1.2 2013/04/09 13:09:25 lpernie Exp $
+// $Id: NewPi0Dumper_Gun.cc,v 1.3 2013/04/12 15:44:58 lpernie Exp $
 //
 //
 
@@ -1718,7 +1718,7 @@ NewPi0Dumper_Gun::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     if( Allclusters.size()!=AllCristal.size() || Allclusters.size()!=s4s9_all.size() || Allclusters.size()!=s1s9_all.size() || Allclusters.size()!=s2s9_all.size() )
 	  cout<<"WARNING: -> ALL Variables size. Clu: "<<Allclusters.size()<<" xtal: "<<AllCristal.size()<<" S4: "<<s4s9_all.size()<<" S1: "<<s1s9_all.size()<<" S2: "<<s2s9_all.size()<<endl;
-cout<<"Allclusters "<<Allclusters.size()<<" "<<AllCristal.size()<<" "<<s4s9_all.size()<<endl;//##
+
     if(storeMCTruth_ && gamma1.IsGoodPi0) AssociateGamma(Allclusters, AllCristal, s4s9_all, s1s9_all, s2s9_all);
 
     //No needs to go on if you need just MVA
