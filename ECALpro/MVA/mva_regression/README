@@ -30,7 +30,7 @@ or
 .x SeePlots_EE.C+("MVA_ES_testing","TestPi01_Mediumtrain_ES_nTrees_100")
 
 Once you have it for gamma1 and 2, you can see the improvement in the invariant mass.
-.x SeePlotsMass.C+("MVA_EtPi0_testing.root","TestPi01_Mediumtrain_nTrees_100", "TestPi02_Mediumtrain_nTrees_100", true) //False if is a eta
+.x SeePlotsMass.C+("MVA_EtPi0_testing","TestPi01_Mediumtrain_nTrees_100", "TestPi02_Mediumtrain_nTrees_100", true) //False if is a eta
 .x SeePlotsMass_EE.C+("MVA_ES_testing","TestPi01_Mediumtrain_ES_nTrees_100", "TestPi02_Mediumtrain_ES_nTrees_100", true)
 
 4) For more questions: luca.pernie@cern.ch
