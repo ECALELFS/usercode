@@ -11,22 +11,17 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-//#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-//#include "Analysis/Modules/interface/PreshowerCluster.h"
-#include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
+#include "Analysis/CalibTools/interface/PreshowerCluster.h"
+#include "Analysis/CalibTools/interface/ECALGeometry.h"
 
 //using namespace reco;
 
 typedef std::map<DetId, EcalRecHit> RecHitsMap;
 typedef std::set<DetId> HitsID;
 
-using namespace reco;
-
 class PreshowerTools{
     public:
-      //PreshowerTools(CaloSubdetectorGeometry* extGeom, CaloSubdetectorTopology* topology_p,  edm::Handle< ESRecHitCollection > & esHandle); 
-      PreshowerTools(const CaloGeometry* extGeom, CaloSubdetectorTopology* topology_p,  edm::Handle< ESRecHitCollection > & esHandle); 
+      PreshowerTools(ECALGeometry* extGeom, CaloSubdetectorTopology* topology_p,  edm::Handle< ESRecHitCollection > & esHandle); 
       PreshowerCluster makeOnePreshowerCluster(int stripwindow, ESDetId *strip);
 
       /// preshower calibration constants
@@ -38,7 +33,7 @@ class PreshowerTools{
 
 
     private:
-      const CaloGeometry* geom_;
+      ECALGeometry* geom_;
       CaloSubdetectorTopology *estopology_;
 
       std::vector<ESDetId> esroad_2d;

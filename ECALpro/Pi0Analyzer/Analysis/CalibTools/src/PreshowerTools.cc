@@ -1,10 +1,5 @@
-//#include "Analysis/Modules/interface/PreshowerCluster.h"
-#include <utility>
-#include <vector>
-#include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
+#include "Analysis/CalibTools/interface/PreshowerCluster.h"
 #include "Analysis/CalibTools/interface/PreshowerTools.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
 
 const double PreshowerTools::mip_ = 8.108e-05;
@@ -13,10 +8,9 @@ const double PreshowerTools::calib_planeX_ = 1.0;
 const double PreshowerTools::calib_planeY_ = 0.7;
 const int    PreshowerTools::clusterwindowsize_ = 15;
 
-//PreshowerTools::PreshowerTools(CaloSubdetectorGeometry* extGeom, CaloSubdetectorTopology* topology_p,  edm::Handle< ESRecHitCollection > & esHandle)
-PreshowerTools::PreshowerTools(const CaloGeometry* extGeom, CaloSubdetectorTopology* topology_p,  edm::Handle< ESRecHitCollection > & esHandle) : geom_(extGeom)
+PreshowerTools::PreshowerTools(ECALGeometry* extGeom, CaloSubdetectorTopology* topology_p,  edm::Handle< ESRecHitCollection > & esHandle)
 {
-    //geom_ = extGeom; 
+    geom_ = extGeom; 
     estopology_ = topology_p; 
 
     for (ESRecHitCollection::const_iterator it = esHandle->begin(); it != esHandle->end(); it++) {
@@ -96,13 +90,14 @@ PreshowerCluster PreshowerTools::makeOnePreshowerCluster(int stripwindow, ESDetI
         max_it = strip_it;
      }
    }
-  
-	     if ( !found ) {//cout<<"WARNING: HOTSTRIP NOT FOUND!!!"<<endl;
+
+	     if ( !found ) {//std::cout<<"WARNING: HOTSTRIP NOT FOUND!!!"<<std::endl;
 
            for (itID = esroad_2d.begin(); itID != esroad_2d.end(); itID++) {
                DetId blindstripid (itID->rawId());
                GlobalPoint position = geom_->getPosition(blindstripid);
-               //cout << "X Position: " << position.x() << "Y Position: " << position.y() << "Z Position: " << position.z() << endl;
+               RecHitsMap::iterator strip_it = rechits_map.find(*itID);
+               //@std::cout << "X Position: " << position.x() << "Y Position: " << position.y() << "Z Position: " << position.z()<<" E " << strip_it->second.energy() <<std::endl;
                //if (position.z() > 0.)eventCont->hist("BlindstripPositionZpos")->Fill(position.x(),position.y());
                //if (position.z() < 0.)eventCont->hist("BlindstripPositionZneg")->Fill(position.x(),position.y());    
            }
@@ -118,7 +113,7 @@ PreshowerCluster PreshowerTools::makeOnePreshowerCluster(int stripwindow, ESDetI
    ESDetId next, strip_1, strip_2;
    navigator.setHome(max_it->first);
    ESDetId startES = max_it->first;
-  
+
    if (plane == 1) {
      // Save two neighbouring strips to the east
      int nadjacents_east = 0;
@@ -197,7 +192,11 @@ PreshowerCluster PreshowerTools::makeOnePreshowerCluster(int stripwindow, ESDetI
       x_pos += E * position.x();
       y_pos += E * position.y();
       z_pos += E * position.z();     
+//std::cout<<"E: "<<  E <<" xpos "<< position.x()<<" Etot "<<energy_pos<<"  xPos tot "<<x_pos<<std::endl;
+//std::cout<<"E: "<<  E <<" ypos "<< position.y()<<" Etot "<<energy_pos<<"  yPos tot "<<y_pos<<std::endl;
+//std::cout<<"E: "<<  E <<" zpos "<< position.z()<<" Etot "<<energy_pos<<"  zPos tot "<<z_pos<<std::endl;
    }
+
   if(energy_pos>0.) {
      x_pos /= energy_pos;
      y_pos /= energy_pos;
@@ -215,32 +214,27 @@ PreshowerCluster PreshowerTools::makeOnePreshowerCluster(int stripwindow, ESDetI
 
   //Filling PreshowerCluster
 
-  //finalcluster.set_x(x_pos);
-  //finalcluster.set_y(y_pos);
-  //finalcluster.set_z(z_pos);
+  finalcluster.set_x(x_pos);
+  finalcluster.set_y(y_pos);
+  finalcluster.set_z(z_pos);
 
-  //finalcluster.set_energy(Eclust);
-  //finalcluster.set_plane(plane);
+  finalcluster.set_energy(Eclust);
+  finalcluster.set_plane(plane);
 
-  //finalcluster.set_goodcluster(true);
+  finalcluster.set_goodcluster(true);
  
-  std::vector< std::pair<DetId, float> > usedHits;
-  PreshowerCluster output(Eclust,   math::XYZPoint(x_pos,y_pos, z_pos) , usedHits , plane);
-  //finalcluster = PreshowerCluster(Eclust,   math::XYZPoint(x_pos,y_pos, z_pos) , std::vector< std::pair<DetId, float> > usedHits, plane);
-
   //used for debugging purposes 
 /*
-  cout << "//-------------------------------------------//"<<endl;
-  cout << " ES Cluster is created with " << endl;
-  cout << " energy = " << finalcluster.get_energy() << endl;
-  cout << " plane = " << finalcluster.get_plane() << endl;
-  cout << " stripscounter = "<<stripscounter<< endl;
-  cout << " (x,y,z) = " << "(" << finalcluster.get_x() <<", "<< finalcluster.get_y() <<", "<< finalcluster.get_z()<<")"<< std::endl; 
-  cout << "//-------------------------------------------//"<<endl;
+  std::cout << "//-------------------------------------------//"<<std::endl;
+  std::cout << " ES Cluster is created with " <<std:: endl;
+  std::cout << " energy = " << finalcluster.get_energy() <<std:: endl;
+  std::cout << " plane = " << finalcluster.get_plane() << std::endl;
+  std::cout << " stripscounter = "<<stripscounter<< std::endl;
+  std::cout << " (x,y,z) = " << "(" << finalcluster.get_x() <<", "<< finalcluster.get_y() <<", "<< finalcluster.get_z()<<")"<< std::endl; 
+  std::cout << "//-------------------------------------------//"<<std::endl;
 */
 
-  //return finalcluster;
-  return output;
+  return finalcluster;
 
 }
 

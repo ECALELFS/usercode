@@ -1,4 +1,4 @@
-// $Id: DumpCaloGeometry.cc,v 1.4 2011/06/22 14:57:16 mgrassi Exp $
+// $Id: DumpCaloGeometry.cc,v 1.1 2013/02/04 13:18:47 lpernie Exp $
 // Shahram Rahatlou, Sapienza Universita` di Roma & INFN
 // May 2010
 //

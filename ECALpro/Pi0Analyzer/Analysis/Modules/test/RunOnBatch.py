@@ -3,22 +3,43 @@
 import subprocess, time, sys, os
 from Method import *
 
-pwd          = os.getcwd()
-eosPath      = '/store/caf/user/lpernie'
-queue        = '8nh' #option: cmscaf1nd
-Gamma_MVA    = False
-OnlyContCorr = False #!
-nInter       = -1
-useES        = 'True'
-cuts4s9      = 0.7
-Are_pi0      = 'False'#!
-dirname      = 'Eta_MVA_01'#!
-inputlist_n   = pwd + '/InputEtaGun_group.txt' #! InputPi0Gun_group.txt/InputPi0Gun_group_short.txt InputEtaGun_group.txt/InputEtaGun_group_short.txt
+pwd         = os.getcwd()
+eosPath     = '/store/caf/user/lpernie' 
+#queue    = 'cmscaf1nd'
+queue    = '8nh'
+OnlyContCorr = False
+nInter = -1
+useES = 'True'
+Gamma_MVA = 'False'
 
-if OnlyContCorr : 
-   ijobmax       = 15
+#cut
+cuts4s9 = 0.8
+isGun    = True
+
+if isGun:
+   isaGun       = 'True'
+   Gamma_MVA    = False #!
+   OnlyContCorr = False  #!
+   dirname      = 'Prova_01'#!
+   if OnlyContCorr : 
+      inputlist_n = pwd + '/InputPi0Gun_group.txt'
+      ijobmax     = 15
+   else:
+      # Se vuoi il TTree dell'MVA
+      if Gamma_MVA:
+         inputlist_n = pwd + '/InputPi0Gun_groupGAMMA.txt'
+      else:
+         # Se vuoi girare su tutti i Pi0
+         inputlist_n = pwd + '/InputPi0Gun_group.txt'#!
+         #inputlist_n = pwd + '/InputPi0Gun_group_short.txt'#!
+      ijobmax     = 25#! 7 per MVA solo
 else:
-   ijobmax       = 25
+   inputlist_n = pwd + '/InputPi0Alca_Short.txt'
+   isaGun      = 'False'
+   dirname     = 'NormaleAlca_02_noES'
+   useES       = 'True'
+   ijobmax     = 1
+   nInter      = 1000000
 
 workdir  = pwd + '/' + dirname
 srcPath  = workdir + '/src/'
@@ -51,7 +72,9 @@ folderCreation.communicate()
 
 # open list of input files
 inputlist_f = open( inputlist_n )
+# read the list containing all the input files
 inputlistbase_v = inputlist_f.readlines()
+
 inputlist_v = inputlistbase_v[:]
 ijob=0
 # Creating different list for hadd
@@ -68,12 +91,15 @@ FinalHaddList = open( hhaddSrc_n, 'w')
 FinalHaddList_Gun = open( hhaddSrc_Gun, 'w')
 while (len(inputlist_v) > 0):
     # List for Hadd of Conteinment Correction
-    FinalHaddList.write("root://eoscms//eos/cms" + eosPath + "/" + dirname + "/ContCorr_"  + str(ijob) + ".root\n")
-    FinalHaddList_Gun.write("root://eoscms//eos/cms" + eosPath + "/" + dirname + "/LocalPi0Gun_"  + str(ijob) + ".root\n")
+    if isGun:
+       FinalHaddList.write("root://eoscms//eos/cms" + eosPath + "/" + dirname + "/ContCorr_"  + str(ijob) + ".root\n")
+       FinalHaddList_Gun.write("root://eoscms//eos/cms" + eosPath + "/" + dirname + "/LocalPi0Gun_"  + str(ijob) + ".root\n")
+    else:
+       FinalHaddList.write("root://eoscms//eos/cms" + eosPath + "/" + dirname + "/LocalPi0Alca_"  + str(ijob) + ".root\n")
     # create CFG file
     fill_cfg_n = cfgPath + "config_" + str(ijob) + ".py"
     fill_cfg_f = open( fill_cfg_n, 'w' )
-    printFillCfg( Gamma_MVA, fill_cfg_f, str(ijob), workdir, OnlyContCorr, str(nInter), useES, str(cuts4s9), str(Are_pi0) )
+    printFillCfg( Gamma_MVA, fill_cfg_f, str(ijob), workdir, isaGun, OnlyContCorr, str(nInter), useES, str(cuts4s9) )
     # loop over the names of the input files to be put in a single cfg
     lastline = min(ijobmax,len(inputlist_v)) - 1
     for line in range(min(ijobmax,len(inputlist_v))):
@@ -91,10 +117,13 @@ while (len(inputlist_v) > 0):
     # print SRC file
     fillSrc_n = srcPath + "config_" + str(ijob) + ".sh"
     fillSrc_f = open( fillSrc_n, 'w')
-    source_s1 = "/tmp/LocalPi0Gun_" + str(ijob) + ".root"
+    if (isGun):
+       source_s1 = "/tmp/LocalPi0Gun_" + str(ijob) + ".root"
+    else:
+       source_s1 = "/tmp/LocalPi0Alca_" + str(ijob) + ".root"
     source_s2 = "/tmp/ContCorr_" + str(ijob) + ".root"
     destination_s = eosPath + '/' + dirname + '/'
-    printSubmitSrc(fillSrc_f, fill_cfg_n, source_s1, source_s2, destination_s, OnlyContCorr, pwd)
+    printSubmitSrc(fillSrc_f, fill_cfg_n, source_s1, source_s2, destination_s, OnlyContCorr, pwd, isGun)
     fillSrc_f.close()
 
     # make the source file executable
@@ -137,26 +166,38 @@ while len(datalines)>2 :#>= stessa coda
 
 print "Done with all jobs! Now merge'em all!!!"
 ## Now The final Hadd  
-if not ( OnlyContCorr ):
-    hadd_s1 = 'hadd -f /tmp/LocalPi0Gun_TOT.root @' + hhaddSrc_Gun
-    print '[hadd] :: ' + hadd_s1
-    addFiles1 = subprocess.Popen([hadd_s1],stdout=subprocess.PIPE, shell=True)
-    nFilesAdded1 = 0
-    filesAdded1 = (addFiles1.communicate()[0]).splitlines()
-    print 'Now staging LocalPi0Gun_TOT.root on EOS'
-    stage_s1 = 'cmsStage -f /tmp/LocalPi0Gun_TOT.root ' + eosPath + '/' + dirname
-    print stage_s1
-    stageEpsilonFile1 = subprocess.Popen([stage_s1], stdout=subprocess.PIPE, shell=True);
-    print stageEpsilonFile1.communicate()
+if( isGun ):  
+   if not ( OnlyContCorr ):
+       hadd_s1 = 'hadd -f /tmp/LocalPi0Gun_TOT.root @' + hhaddSrc_Gun
+       print '[hadd] :: ' + hadd_s1
+       addFiles1 = subprocess.Popen([hadd_s1],stdout=subprocess.PIPE, shell=True)
+       nFilesAdded1 = 0
+       filesAdded1 = (addFiles1.communicate()[0]).splitlines()
+       print 'Now staging LocalPi0Gun_TOT.root on EOS'
+       stage_s1 = 'cmsStage -f /tmp/LocalPi0Gun_TOT.root ' + eosPath + '/' + dirname
+       print stage_s1
+       stageEpsilonFile1 = subprocess.Popen([stage_s1], stdout=subprocess.PIPE, shell=True);
+       print stageEpsilonFile1.communicate()
 
+   else:
+      hadd_s = 'hadd -f /tmp/ContCorr_TOT.root @' + hhaddSrc_n
+      print '[hadd] :: ' + hadd_s
+      addFiles = subprocess.Popen([hadd_s],stdout=subprocess.PIPE, shell=True)
+      nFilesAdded = 0
+      filesAdded = (addFiles.communicate()[0]).splitlines()
+      print 'Now staging ContCorr_TOT.root on EOS'
+      stage_s = 'cmsStage -f /tmp/ContCorr_TOT.root ' + eosPath + '/' + dirname
+      print stage_s
+      stageEpsilonFile = subprocess.Popen([stage_s], stdout=subprocess.PIPE, shell=True);
+      print stageEpsilonFile.communicate()
 else:
-   hadd_s = 'hadd -f /tmp/ContCorr_TOT.root @' + hhaddSrc_n
+   hadd_s = 'hadd -f /tmp/LocalPi0Alca_TOT.root @' + hhaddSrc_n
    print '[hadd] :: ' + hadd_s
    addFiles = subprocess.Popen([hadd_s],stdout=subprocess.PIPE, shell=True)
    nFilesAdded = 0
    filesAdded = (addFiles.communicate()[0]).splitlines()
    print 'Now staging ContCorr_TOT.root on EOS'
-   stage_s = 'cmsStage -f /tmp/ContCorr_TOT.root ' + eosPath + '/' + dirname
+   stage_s = 'cmsStage -f /tmp/LocalPi0Alca_TOT.root ' + eosPath + '/' + dirname
    print stage_s
    stageEpsilonFile = subprocess.Popen([stage_s], stdout=subprocess.PIPE, shell=True);
    print stageEpsilonFile.communicate()

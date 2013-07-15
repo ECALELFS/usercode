@@ -2,7 +2,7 @@
 #define EcalCalibAlgo_H
 
 //
-// $Id: EcalCalibAlgo.h,v 1.7 2011/08/16 08:55:49 dmarconi Exp $
+// $Id: EcalCalibAlgo.h,v 1.1 2013/02/04 13:23:02 lpernie Exp $
 // Shahram Rahatlou, Sapienza Universita` di Roma & INFN
 // May 2010
 
