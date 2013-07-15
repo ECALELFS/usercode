@@ -61,22 +61,23 @@ void SeePlots_EE(TString NameWeightTest, TString NameWeight ){
 
     //MVA cuts
     TCut traincut;
-    if( !GAMMA_GUN && (Type == "1" || Type == "2") ) traincut = "(MVA_E3x3MC_1/MVA_E3x3_1)<3.0 && (MVA_E3x3MC_2/MVA_E3x3_2)<3.0 && MVA_E3x3_1>0.01 && MVA_E3x3MC_1>0.01 && MVA_E3x3_2>0.01 && MVA_Nxtal_1>6 && MVA_Nxtal_2>4 && MVA_E3x3MC_2>0.01 && MVA_Pt_1>0.5 && MVA_Pt_2>0.5 && MVA_S4S9_1>0.8 && MVA_S4S9_2>0.8 && MVA_EPi0>0.8";
+    //if( !GAMMA_GUN && (Type == "1" || Type == "2") ) traincut = "(MVA_E3x3MC_1/MVA_E3x3_1)<3.0 && (MVA_E3x3MC_2/MVA_E3x3_2)<3.0 && MVA_E3x3_1>0.01 && MVA_E3x3MC_1>0.01 && MVA_E3x3_2>0.01 && MVA_Nxtal_1>6 && MVA_Nxtal_2>4 && MVA_E3x3MC_2>0.01 && MVA_Pt_1>0.5 && MVA_Pt_2>0.5 && MVA_S4S9_1>0.8 && MVA_S4S9_2>0.8 && MVA_EPi0>0.8";
+    if( !GAMMA_GUN && (Type == "1" || Type == "2") ) traincut = "TMath::Abs(MVA_nEta_1)>1.656 && TMath::Abs(MVA_nEta_1)<2.59 && (MVA_E3x3MC_1/MVA_E3x3_1)<3.0 && (MVA_E3x3MC_2/MVA_E3x3_2)<3.0 && MVA_E3x3_1>0.01 && MVA_E3x3MC_1>0.01  && MVA_E3x3_2>0.01 && MVA_Nxtal_1>6 && MVA_Nxtal_2>5 && MVA_E3x3MC_2>0.01 && MVA_Pt_1>0.5 && MVA_Pt_2>0.5 && MVA_S4S9_1>0.8 && MVA_S4S9_2>0.8 && MVA_EPi0>1.5";
     if( GAMMA_GUN )                                  traincut = "MVA_E3x3_1>0.01 && MVA_E3x3MC_1>0.01 && (MVA_E3x3MC_1/MVA_E3x3_1)<3.0 && MVA_Pt_1>0.55 && MVA_Nxtal_1>5 && MVA_S4S9_1>0.75";
 
     //Plots
-//    TString Output = NameWeight + "/" + mode + "_Risol_RedNoweight_BlackWeight.png";
-//    TH1F *h1 = new TH1F("h1","Risol [red no weight]",100,-1,1);
-//    Tree->Draw("(((MVA_E3x3_"+Type+"*"+Friend+")-MVA_E3x3MC_"+Type+")/MVA_E3x3MC_"+Type+")>>h1","((MVA_E3x3_"+Type+"*"+Friend+")-MVA_E3x3MC_"+Type+")/MVA_E3x3MC_"+Type+"<1 && "+ string(traincut) );
-//    TH1F *h2 = new TH1F("h2","Risol 2 [red no weight]",100,-1,1);
-//    Tree->Draw("((MVA_E3x3_"+Type+"-MVA_E3x3MC_"+Type+")/MVA_E3x3MC_"+Type+")>>h2","(MVA_E3x3_"+Type+"-MVA_E3x3MC_"+Type+")/MVA_E3x3MC_"+Type+"<1 && "+ string(traincut));
-//    h1->Draw();
-//    h1->SetMaximum( h2->GetMaximum() );
-//    h1->Draw(); h2->SetLineColor(2); h2->Draw("SAMES");
-//    myc1->SaveAs(Output.Data());
-//    delete h1; delete h2;
-
     TString Output = NameWeight + "/" + mode + "_Risol_RedNoweight_BlackWeight.png";
+    TH1F *h1 = new TH1F("h1","Risol [red no weight]",100,-1,1);
+    Tree->Draw("(((MVA_E3x3_"+Type+"*"+Friend+")-MVA_E3x3MC_"+Type+")/MVA_E3x3MC_"+Type+")>>h1","((MVA_E3x3_"+Type+"*"+Friend+")-MVA_E3x3MC_"+Type+")/MVA_E3x3MC_"+Type+"<1 && "+ string(traincut) );
+    TH1F *h2 = new TH1F("h2","Risol 2 [red no weight]",100,-1,1);
+    Tree->Draw("((MVA_E3x3_"+Type+"-MVA_E3x3MC_"+Type+")/MVA_E3x3MC_"+Type+")>>h2","(MVA_E3x3_"+Type+"-MVA_E3x3MC_"+Type+")/MVA_E3x3MC_"+Type+"<1 && "+ string(traincut));
+    h1->Draw();
+    h1->SetMaximum( h2->GetMaximum() );
+    h1->Draw(); h2->SetLineColor(2); h2->Draw("SAMES");
+    myc1->SaveAs(Output.Data());
+    delete h1; delete h2;
+
+    //TString Output = NameWeight + "/" + mode + "_Risol_RedNoweight_BlackWeight.png";
 /*
     TH1F *h1 = new TH1F("h1","Risol [red no weight]",100,0,2);
     Tree->Draw("((MVA_E3x3MC_"+Type+")/(MVA_E3x3_"+Type+")/"+Friend+")>>h1","(MVA_E3x3MC_"+Type+")/MVA_E3x3_"+Type+"<3 && "+ string(traincut) );
@@ -289,7 +290,7 @@ void SeePlots_EE(TString NameWeightTest, TString NameWeight ){
     }
     //Profile Comparison
 */
-    Output = NameWeight + "/" + mode + "_"+Friend+"RedERATIOblack_Profile_EtaRing_.png";
+    Output = NameWeight + "/" + mode + "_"+Friend+"RedERATIOblack_Profile_EtaRing.png";
     gStyle->SetOptStat(0);
     TProfile *h37 = new TProfile("h37",""+Friend+" vs EtaRing_"+Type+" (profile) red="+Friend+" black=Erec/Emc",30,5.5,35.5, 0., 10.);
     Tree->Draw(""+Friend+":EtaRing_"+Type+">>h37",(traincut),"ProfileX");
@@ -331,16 +332,16 @@ void SeePlots_EE(TString NameWeightTest, TString NameWeight ){
     myc1->SaveAs(Output.Data());
     delete h6a; delete h17a;
 
-    //Output = NameWeight + "/" + mode + "_"+Friend+"RedERATIOblack_Profile_dR.png";
-    //gStyle->SetOptStat(0);
-    //TProfile *h6a = new TProfile("h6a",""+Friend+" vs idR_"+Type+" (profile) red="+Friend+" black=Erec/Emc",30,20.5, 50.5, 0.95, 1.7);
-    //Tree->Draw(""+Friend+":sqrt(pow(MVA_iX_"+Type+",2)+pow(MVA_iY_"+Type+",2))>>h6a",(traincut),"ProfileX");
-    //h6a->SetMinimum(0.95); h6a->SetLineColor(2);
-    //TProfile *h17a = new TProfile("h17a","Emc/Erec vs dR_"+Type+" (profile)", 30,20.5, 50.5, 0.95, 1.7);
-    //Tree->Draw("MVA_E3x3MC_"+Type+"/MVA_E3x3_"+Type+":sqrt(pow(MVA_iX_"+Type+",2)+pow(MVA_iY_"+Type+",2))>>h17a",(traincut),"ProfileX");
-    //h6a->Draw(); h17a->SetMinimum(0.95); h17a->Draw("same");
-    //myc1->SaveAs(Output.Data());
-    //delete h6a; delete h17a;
+    Output = NameWeight + "/" + mode + "_"+Friend+"RedERATIOblack_Profile_dR.png";
+    gStyle->SetOptStat(0);
+    TProfile *h6b = new TProfile("h6b",""+Friend+" vs idR_"+Type+" (profile) red="+Friend+" black=Erec/Emc",30,20.5, 50.5, 0.95, 1.7);
+    Tree->Draw(""+Friend+":sqrt(pow(MVA_iX_"+Type+",2)+pow(MVA_iY_"+Type+",2))>>h6b",(traincut),"ProfileX");
+    h6b->SetMinimum(0.95); h6b->SetLineColor(2);
+    TProfile *h17b = new TProfile("h17b","Emc/Erec vs dR_"+Type+" (profile)", 30,20.5, 50.5, 0.95, 1.7);
+    Tree->Draw("MVA_E3x3MC_"+Type+"/MVA_E3x3_"+Type+":sqrt(pow(MVA_iX_"+Type+",2)+pow(MVA_iY_"+Type+",2))>>h17b",(traincut),"ProfileX");
+    h6b->Draw(); h17b->SetMinimum(0.95); h17b->Draw("same");
+    myc1->SaveAs(Output.Data());
+    delete h6b; delete h17b;
 
     Output = NameWeight + "/" + mode + "_"+Friend+"RedERATIOblack_Profile_S4S9.png";
     gStyle->SetOptStat(0);
@@ -427,6 +428,16 @@ void SeePlots_EE(TString NameWeightTest, TString NameWeight ){
     myc1->SaveAs(Output.Data());
     delete h30a; delete h31a;
 
+    Output = NameWeight + "/" + mode + "_"+Friend+"RedERATIOblack_Profile_ESsum.png";
+    gStyle->SetOptStat(0);
+    TProfile *h30b = new TProfile("h30b",""+Friend+" vs E_"+Type+" /ES (profile) red="+Friend+" black=Erec/Emc", 100, 0., 0.45, 0., 10.);
+    Tree->Draw(""+Friend+":(MVA_ES1_"+Type+"+MVA_ES2_"+Type+")>>h30b",(traincut),"ProfileX");
+    h30b->SetLineColor(2);
+    TProfile *h31b = new TProfile("h31b","E ES sum",100, 0., 0.45, 0., 10.);
+    Tree->Draw("MVA_E3x3MC_"+Type+"/MVA_E3x3_"+Type+":(MVA_ES1_"+Type+"+MVA_ES2_"+Type+")>>h31b",(traincut),"ProfileX");
+    h30b->Draw(); h31b->Draw("same");
+    myc1->SaveAs(Output.Data());
+    delete h30b; delete h31b;
 
     delete myc1;
 

@@ -99,7 +99,7 @@ void SeePlots(TString NameWeightTest, TString NameWeight ){
     myc1->SaveAs(Output.Data());
     delete mva_phi_eta; 
 */
-/*
+
     for(int j=0; j<2; j++){
 	  TString num = "";
 	  if( j==0 ) num = "1";
@@ -265,10 +265,10 @@ void SeePlots(TString NameWeightTest, TString NameWeight ){
     gStyle->SetOptStat(0);
     TProfile *h4 = new TProfile("h4",""+Friend+" vs iETA_"+Type+" (profile) red="+Friend+" back=Erec/Emc",171,-85.5,85.5, 0.9, 1.1);
     Tree->Draw(""+Friend+":MVA_Eta_"+Type+">>h4",(traincut),"ProfileX");
-    h4->SetMinimum(0.95); h4->SetLineColor(2);
+    h4->SetMinimum(1.); h4->SetMaximum(1.08); h4->SetLineColor(2);
     TProfile *h16 = new TProfile("h16","Emc/Erec vs iETA_"+Type+" (profile)",171,-85.5,85.5, 0.9, 1.1);
     Tree->Draw("MVA_E3x3MC_"+Type+"/MVA_E3x3_"+Type+":MVA_Eta_"+Type+">>h16",(traincut),"ProfileX");
-    h4->Draw("colz"); h16->SetMinimum(0.95); h16->Draw("colz same");
+    h4->Draw("colz"); h16->SetMinimum(1.); h16->SetMaximum(1.08); h16->Draw("colz same");
     myc1->SaveAs(Output.Data());
     delete h4; delete h16;
 
@@ -276,10 +276,10 @@ void SeePlots(TString NameWeightTest, TString NameWeight ){
     gStyle->SetOptStat(0);
     TProfile *h6 = new TProfile("h6",""+Friend+" vs iPHI_"+Type+" (profile) red="+Friend+" back=Erec/Emc",360,0.5, 360.5, 0.9, 1.1);
     Tree->Draw(""+Friend+":MVA_Phi_"+Type+">>h6",(traincut),"ProfileX");
-    h6->SetMinimum(0.95); h6->SetLineColor(2);
+    h6->SetMinimum(1.); h6->SetMaximum(1.08); h6->SetLineColor(2);
     TProfile *h17 = new TProfile("h17","Emc/Erec vs iPHI_"+Type+" (profile)",360,0.5, 360.5, 0.9, 1.1);
     Tree->Draw("MVA_E3x3MC_"+Type+"/MVA_E3x3_"+Type+":MVA_Phi_"+Type+">>h17",(traincut),"ProfileX");
-    h6->Draw("colz"); h17->SetMinimum(0.95); h17->Draw("colz same");
+    h6->Draw("colz"); h17->SetMinimum(1.); h17->SetMaximum(1.08); h17->Draw("colz same");
     myc1->SaveAs(Output.Data());
     delete h6; delete h17;
 
@@ -354,7 +354,7 @@ void SeePlots(TString NameWeightTest, TString NameWeight ){
     h30->Draw("colz"); h31->SetMinimum(0.95); h31->Draw("colz same");
     myc1->SaveAs(Output.Data());
     delete h30; delete h31;
-*/
+
     delete myc1;
 
 }

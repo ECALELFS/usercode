@@ -1,4 +1,4 @@
-// --> >// $Id: rootlogon.C,v 1.1 2012/07/31 06:11:14 sixie Exp $
+// --> >// $Id: rootlogon.C,v 1.1 2013/02/05 13:09:28 lpernie Exp $
 {
  {
   TString libstr(Form("%s/lib/%s/%s",

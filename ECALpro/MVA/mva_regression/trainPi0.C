@@ -121,14 +121,13 @@ void trainPi0(char* trainingFile, char* outWeightFile,  int nTrees, int nPi0, st
 
     if(type=="EB"){
 	  if(nPi0==1){
-		//varsf->push_back("MVA_EPi0");
 		varsf->push_back("MVA_E3x3_1/MVA_E3x3_2");
 		varsf->push_back("MVA_Pt_1");
 		varsf->push_back("MVA_Nxtal_1");
-		varsf->push_back("MVA_Nxtal_2");
-		varsf->push_back("MVA_S4S9_1");
-		varsf->push_back("MVA_S1S9_1");
-		varsf->push_back("MVA_S2S9_1");
+//		varsf->push_back("MVA_Nxtal_2");
+//		varsf->push_back("MVA_S4S9_1");
+//		varsf->push_back("MVA_S1S9_1");
+//		varsf->push_back("MVA_S2S9_1");
 		varsf->push_back("MVA_Eta_1");
 		varsf->push_back("MVA_Phi_1");
 		varsf->push_back("sqrt(pow((MVA_Eta_1-MVA_Eta_2),2)+pow((MVA_Phi_1-MVA_Phi_2),2))");
@@ -138,14 +137,13 @@ void trainPi0(char* trainingFile, char* outWeightFile,  int nTrees, int nPi0, st
 		varsf->push_back("MVA_Phi_1on20");
 	  }
 	  if(nPi0==2){
-		//varsf->push_back("MVA_EPi0");
 		varsf->push_back("MVA_E3x3_1/MVA_E3x3_2");
 		varsf->push_back("MVA_Pt_2");
-		varsf->push_back("MVA_Nxtal_1");
+//		varsf->push_back("MVA_Nxtal_1");
 		varsf->push_back("MVA_Nxtal_2");
-		varsf->push_back("MVA_S4S9_2");
-		varsf->push_back("MVA_S1S9_2");
-		varsf->push_back("MVA_S2S9_2");
+//		varsf->push_back("MVA_S4S9_2");
+//		varsf->push_back("MVA_S1S9_2");
+//		varsf->push_back("MVA_S2S9_2");
 		varsf->push_back("MVA_Eta_2");
 		varsf->push_back("MVA_Phi_2");
 		varsf->push_back("sqrt(pow((MVA_Eta_1-MVA_Eta_2),2)+pow((MVA_Phi_1-MVA_Phi_2),2))");
