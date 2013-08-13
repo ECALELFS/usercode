@@ -1,9 +1,0 @@
-<flags   GENREFLEX_ARGS="--"/>
-
-<use   name="CondFormats/EgammaObjects"/>
-<use   name="rootrflx"/>
-<use   name="root"/>
-<use name="rootgraphics"/>
-<export>
-  <lib   name="1"/>
-</export>
